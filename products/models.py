@@ -1,21 +1,28 @@
 from django.db import models
 
 class Category(models.Model):
-    name = models.CharField(max_length=250, unique=True)
-    slug = models.SlugField(max_length=50, unique=True)
+    nom = models.CharField(max_length=100)
+    slug = models.SlugField(unique=True)
 
     def __str__(self):
-        return self.name
+        return self.nom
 
-class Product(models.Model):
-    name = models.CharField(max_length=250)
+
+class Voiture(models.Model):
+    nom = models.CharField(max_length=100)
+    marque = models.CharField(max_length=100)
+    modele = models.PositiveIntegerField()
+    transmission = models.CharField(max_length=50)
     description = models.TextField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    stock = models.PositiveIntegerField(default=0)
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='products')
-    image=models.ImageField(null=True,upload_to='products/')
+    prix = models.DecimalField(max_digits=10, decimal_places=2)
+    stock = models.PositiveIntegerField()
+    image = models.ImageField(upload_to='voitures/')
 
-
+    Category = models.ForeignKey(
+        'products.Category',
+        on_delete=models.CASCADE,
+        related_name="voitures"
+    )
 
     def __str__(self):
-        return self.name
+        return self.nom
