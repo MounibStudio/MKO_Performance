@@ -1,3 +1,45 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 
-# Create your models here.
+class Commande(models.Model):
+    utilisateur = models.ForeignKey(
+        'users.User',
+        on_delete=models.CASCADE,
+        related_name="commandes"
+    )
+
+    total = models.DecimalField(max_digits=10, decimal_places=2)
+    statut = models.CharField(max_length=50)
+    cree_le = models.DateTimeField(auto_now_add=True)
+    adresse = models.TextField()
+
+    date_debut = models.DateTimeField()
+    date_fin = models.DateTimeField()
+
+    def __str__(self):
+        return f"Commande {self.id}"
+
+    def clean(self):
+        if self.date_fin < self.date_debut:
+            raise ValidationError(
+                "La date de fin doit être après la date de début."
+            )
+
+
+class ArticleCommande(models.Model):
+    commande = models.ForeignKey(
+        'orders.Commande',
+        on_delete=models.CASCADE,
+        related_name="articles"
+    )
+
+    voiture = models.ForeignKey(
+        'products.Voiture',
+        on_delete=models.CASCADE
+    )
+
+    quantite = models.PositiveIntegerField()
+    prix = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.voiture.nom} x {self.quantite}"

@@ -1,14 +1,18 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser
+from .models import User
 
-@admin.register(CustomUser)
+
+@admin.register(User)
 class CustomUserAdmin(UserAdmin):
-    # Formulaire d'édition
     fieldsets = UserAdmin.fieldsets + (
-        ('Informations supplémentaires', {'fields': ('phone', 'address')}),
+        ('Extra Info', {'fields': ('telephone', 'adresse')}),
     )
-    # Formulaire d'ajout
+
     add_fieldsets = UserAdmin.add_fieldsets + (
-        ('Informations supplémentaires', {'fields': ('email', 'phone', 'address')}),
+        ('Extra Info', {'fields': ('telephone', 'adresse')}),
     )
+
+    list_display = ('id', 'username', 'email', 'telephone', 'is_staff', 'is_active')
+    search_fields = ('username', 'email', 'telephone')
+    list_filter = ('is_staff', 'is_active')

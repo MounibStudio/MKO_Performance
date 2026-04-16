@@ -1,16 +1,16 @@
 from django.contrib import admin
-from .models import Category,Product
+from .models import Category, Voiture
 
-# Register your models here.
 
 @admin.register(Category)
-class Category (admin.ModelAdmin):
-    prepopulated_fields={'slug':('name',)}
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'nom', 'slug')
+    search_fields = ('nom',)
+    prepopulated_fields = {'slug': ('nom',)}
 
 
-@admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
-    list_display=('name','category','price','stock')
-    list_filter=('category',)
-    search_fields=('name','description')
-
+@admin.register(Voiture)
+class VoitureAdmin(admin.ModelAdmin):
+    list_display = ('id', 'nom', 'marque', 'modele', 'prix', 'stock', 'Category')
+    search_fields = ('nom', 'marque')
+    list_filter = ('Category',)
