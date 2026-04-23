@@ -2,15 +2,15 @@ from django.core.management.base import BaseCommand
 from products.models import Category, Voiture
 
 class Command(BaseCommand):
-    help = 'Génère les données fictives pour les voitures MKO Performance'
+    help = 'Génère les données pour les voitures MKO Performance'
 
     def handle(self, *args, **options):
         categories_data = [
             {'nom': 'Berline', 'slug': 'berline'},
             {'nom': 'SUV', 'slug': 'suv'},
-            {'nom': 'Compacte', 'slug': 'compacte'},
+            {'nom': 'Coupé', 'slug': 'coupe'},
+            {'nom': 'Sport', 'slug': 'sport'},
             {'nom': 'Luxe', 'slug': 'luxe'},
-            {'nom': 'Familiale', 'slug': 'familiale'},
         ]
 
         for cat_data in categories_data:
@@ -27,96 +27,132 @@ class Command(BaseCommand):
                 'marque': 'BMW',
                 'modele': 2024,
                 'transmission': 'Automatique',
-                'description': 'Berline élégante et sportive, parfaite pour les déplacements urbains et les longs voyages. Equipée du système iDrive et d\'aides à la conduite avancées.',
+                'description': 'Berline élégante et sportive, parfaite pour les déplacements urbains et les longs voyages.',
                 'prix': 45000.00,
                 'stock': 5,
-                'image_exterieur': 'voitures/39638.jpg',
-                'image_interieur': 'voitures/39638.jpg',
-                'category_slug': 'luxe'
+                'image_exterieur': 'products/Sedans/bmw/exterior.jpg',
+                'image_interieur': 'products/Sedans/bmw/interior.jpg',
+                'category_slug': 'berline'
             },
             {
-                'nom': 'Mercedes Classe A',
+                'nom': 'Mercedes-Benz Classe C',
                 'marque': 'Mercedes-Benz',
                 'modele': 2023,
                 'transmission': 'Automatique',
-                'description': 'Compacte premium avec un intérieur raffiné et des technologies de pointe. Idéal pour les professionnels recherchant le confort.',
-                'prix': 42000.00,
-                'stock': 3,
-                'image_exterieur': 'voitures/39638.jpg',
-                'image_interieur': 'voitures/39638.jpg',
-                'category_slug': 'compacte'
-            },
-            {
-                'nom': 'Renault Clio',
-                'marque': 'Renault',
-                'modele': 2024,
-                'transmission': 'Manuelle',
-                'description': 'Citadine économique et agile, parfaite pour la ville. Faible consommation de carburant et facilités de stationnement.',
-                'prix': 18000.00,
-                'stock': 10,
-                'image_exterieur': 'voitures/39638.jpg',
-                'image_interieur': 'voitures/39638.jpg',
-                'category_slug': 'compacte'
-            },
-            {
-                'nom': 'Peugeot 3008',
-                'marque': 'Peugeot',
-                'modele': 2023,
-                'transmission': 'Automatique',
-                'description': 'SUV familial spacieux avec un design moderne et une habitabilitéExceptionnelle. Parfait pour les escapades en famille.',
-                'prix': 35000.00,
-                'stock': 6,
-                'image_exterieur': 'voitures/39638.jpg',
-                'image_interieur': 'voitures/39638.jpg',
-                'category_slug': 'suv'
+                'description': 'Berline premium avec un intérieur raffiné et des technologies de pointe.',
+                'prix': 48000.00,
+                'stock': 4,
+                'image_exterieur': 'products/Sedans/mercedes/exterior.jpg',
+                'image_interieur': 'products/Sedans/mercedes/interior.jpg',
+                'category_slug': 'luxe'
             },
             {
                 'nom': 'Audi A4',
                 'marque': 'Audi',
                 'modele': 2024,
                 'transmission': 'Automatique',
-                'description': 'Berline sportive combines elegance et performance. Technologie de pointe avec un confort de conduite incomparable.',
+                'description': 'Berline sportive combines élégance et performance avec un confort incomparable.',
                 'prix': 52000.00,
-                'stock': 4,
-                'image_exterieur': 'voitures/39638.jpg',
-                'image_interieur': 'voitures/39638.jpg',
+                'stock': 3,
+                'image_exterieur': 'products/Sedans/audi/exterior.jpg',
+                'image_interieur': 'products/Sedans/audi/interior.jpg',
                 'category_slug': 'luxe'
             },
             {
-                'nom': 'Volkswagen Tiguan',
-                'marque': 'Volkswagen',
+                'nom': 'BMW X5',
+                'marque': 'BMW',
                 'modele': 2023,
                 'transmission': 'Automatique',
-                'description': 'SUV polyvalent adapté à toutes les conditions. Grand coffre et habitacle confortable pour les longues distances.',
-                'prix': 38000.00,
-                'stock': 7,
-                'image_exterieur': 'voitures/39638.jpg',
-                'image_interieur': 'voitures/39638.jpg',
+                'description': 'SUV familial spacieux avec un design moderne et une habitabilité exceptionnelle.',
+                'prix': 65000.00,
+                'stock': 6,
+                'image_exterieur': 'products/SUV/bmw/exteriror.webp',
+                'image_interieur': 'products/SUV/bmw/interior.webp',
                 'category_slug': 'suv'
             },
             {
-                'nom': 'Toyota Corolla',
-                'marque': 'Toyota',
+                'nom': 'Mercedes GLE',
+                'marque': 'Mercedes-Benz',
                 'modele': 2024,
-                'transmission': 'Hybride',
-                'description': 'Hybride fiable et économique. Reference en termes de consommation et de fiabilité automobile.',
-                'prix': 28000.00,
-                'stock': 12,
-                'image_exterieur': 'voitures/39638.jpg',
-                'image_interieur': 'voitures/39638.jpg',
-                'category_slug': 'familiale'
+                'transmission': 'Automatique',
+                'description': 'SUV luxueux combinant performance et confort pour les longues distances.',
+                'prix': 72000.00,
+                'stock': 4,
+                'image_exterieur': 'products/SUV/mercedes/exteriro.webp',
+                'image_interieur': 'products/SUV/mercedes/interiro.webp',
+                'category_slug': 'suv'
             },
             {
-                'nom': 'Skoda Octavia',
-                'marque': 'Skoda',
+                'nom': 'Audi Q7',
+                'marque': 'Audi',
                 'modele': 2023,
+                'transmission': 'Automatique',
+                'description': 'SUV spacieux et élégant, idéal pour les familles et les voyages.',
+                'prix': 58000.00,
+                'stock': 5,
+                'image_exterieur': 'products/SUV/audi/exterior.jpg',
+                'image_interieur': 'products/SUV/audi/interiro.jpg',
+                'category_slug': 'suv'
+            },
+            {
+                'nom': 'BMW Série 4 Coupé',
+                'marque': 'BMW',
+                'modele': 2024,
+                'transmission': 'Automatique',
+                'description': 'Coupé sportif avec un design dynamique et des performances impressionnantes.',
+                'prix': 55000.00,
+                'stock': 4,
+                'image_exterieur': 'products/Coupe/bmw/exterior.jpg',
+                'image_interieur': 'products/Coupe/bmw/interior.jpg',
+                'category_slug': 'coupe'
+            },
+            {
+                'nom': 'Mercedes CLE',
+                'marque': 'Mercedes-Benz',
+                'modele': 2024,
+                'transmission': 'Automatique',
+                'description': 'Coupé élégant alliant luxe et sportivité pour les amateurs de design.',
+                'prix': 62000.00,
+                'stock': 3,
+                'image_exterieur': 'products/Coupe/mercedes/exterior.jpg',
+                'image_interieur': 'products/Coupe/mercedes/interior.jpg',
+                'category_slug': 'coupe'
+            },
+            {
+                'nom': 'BMW M8',
+                'marque': 'BMW',
+                'modele': 2024,
+                'transmission': 'Automatique',
+                'description': 'Sportive d\'exception avec un moteur puissant et un luxe incomparable.',
+                'prix': 150000.00,
+                'stock': 2,
+                'image_exterieur': 'products/sport/bmw serie 8/exterior.avif',
+                'image_interieur': 'products/sport/bmw serie 8/interior.webp',
+                'category_slug': 'sport'
+            },
+            {
+                'nom': 'Nissan GT-R',
+                'marque': 'Nissan',
+                'modele': 2023,
+                'transmission': 'Automatique',
+                'description': 'Supercar légendaire alliant technologie de pointe et performances extrêmes.',
+                'prix': 115000.00,
+                'stock': 2,
+                'image_exterieur': 'products/sport/nissan_gtr/exterior.webp',
+                'image_interieur': 'products/sport/nissan_gtr/interior.webp',
+                'category_slug': 'sport'
+            },
+            {
+                'nom': 'Ford Shelby GT500',
+                'marque': 'Ford',
+                'modele': 2022,
                 'transmission': 'Manuelle',
-                'description': 'Familiale spacieuse avec un rapport qualité-prix excellent. Grand volume de chargement et confort de route.',
-                'prix': 25000.00,
-                'stock': 8,
-                'image_exterieur': 'voitures/39638.jpg',
-                'image_interieur': 'voitures/39638.jpg',
-                'category_slug': 'familiale'
+                'description': 'Muscle car américaine emblématique avec un V8 surpuissant.',
+                'prix': 95000.00,
+                'stock': 1,
+                'image_exterieur': 'products/sport/ford shelby/exterior.jpeg',
+                'image_interieur': 'products/sport/ford shelby/interior.jpg',
+                'category_slug': 'sport'
             },
         ]
 
