@@ -16,7 +16,8 @@ class Voiture(models.Model):
     description = models.TextField()
     prix = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField()
-    image = models.ImageField(upload_to='voitures/')
+    image_exterieur = models.ImageField(upload_to='voitures/exterieur/')
+    image_interieur = models.ImageField(upload_to='voitures/interieur/')
 
     Category = models.ForeignKey(
         'products.Category',
