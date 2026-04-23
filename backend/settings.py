@@ -53,20 +53,41 @@ TEMPLATES = [
 # ---------------------------------
 
 WSGI_APPLICATION = 'backend.wsgi.application'
+import platform
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mko_db',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'OPTIONS': {
-            'charset': 'utf8mb4',
-        },
+# Détection de l'OS
+is_windows = platform.system() == "Windows"
+
+if is_windows:
+    # Config pour tes collègues (Windows / Wamp)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'mko_performance_db',
+            'USER': 'root',
+            'PASSWORD': '',
+            'HOST': '127.0.0.1',
+            'PORT': '3306',
+            'OPTIONS': {
+                'charset': 'utf8mb4',
+            },
+        }
     }
-}
+else:
+    # Ta config pour Linux Mint
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'mko_performance_db', # <--- Doit correspondre à la DB créée
+            'USER': 'mko',        # L'utilisateur qu'on a créé (ou root si tu préfères)
+            'PASSWORD': 'mko123', # Ton mot de passe défini
+            'HOST': 'localhost',
+            'PORT': '3306',
+            'OPTIONS': {
+                'charset': 'utf8mb4',
+            },
+        }
+    }
 
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
