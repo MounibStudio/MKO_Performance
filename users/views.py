@@ -1,14 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views import View
-from django.http import HttpResponse
 
 class LoginView(View):
     def get(self, request):
-        if request.user.is_authenticated:
-            return redirect('home')
         return render(request, 'users/login.html')
     
     def post(self, request):
@@ -26,8 +22,6 @@ class LoginView(View):
 
 class SignupView(View):
     def get(self, request):
-        if request.user.is_authenticated:
-            return redirect('home')
         return render(request, 'users/signup.html')
     
     def post(self, request):
@@ -62,7 +56,6 @@ class SignupView(View):
         return redirect('login')
         
 
-@login_required
 def logout_view(request):
     logout(request)
     messages.success(request, 'Déconnexion réussie!')
