@@ -1,32 +1,29 @@
-products = [
+voitures = [
     {
-        "nom": "Machine à emballer sous vide Pro",
-        "marque": "Anova",
-        "categorie": "Scelleurs sous vide",
+        "nom": "BMW Série 3",
+        "marque": "BMW",
+        "modele": 2024,
+        "categorie": "Luxe",
+        "prix": 45000,
+        "transmission": "Automatique",
+        "stock": 5
+    },
+    {
+        "nom": "Mercedes Classe A",
+        "marque": "Mercedes",
+        "modele": 2023,
+        "categorie": "Luxe",
+        "prix": 42000,
+        "transmission": "Automatique",
+        "stock": 3
+    },
+    {
+        "nom": "Renault Clio",
+        "marque": "Renault",
+        "modele": 2024,
+        "categorie": "Compacte",
+        "prix": 18000,
+        "transmission": "Manuelle",
         "stock": 10
-    },
-    {
-        "nom": "Machine à emballer sous vide manuelle",
-        "marque": "SimpliCulinary",
-        "categorie": "Scelleurs sous vide",
-        "stock": 5
-    },
-    {
-        "nom": "Récipient isotherme pour cuiseur",
-        "marque": "Cadillac",
-        "categorie": "Accessoires",
-        "stock": 5
-    },
-    {
-        "nom": "Poêle en fonte",
-        "marque": "FieldCompany",
-        "categorie": "Accessoires",
-        "stock": 11
-    },
-    {
-        "nom": "Mini cuiseur de précision",
-        "marque": "SimpliCulinary",
-        "categorie": "Precision Cooker",
-        "stock": 7
     }
 ]
