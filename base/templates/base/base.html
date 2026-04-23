@@ -1,0 +1,674 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MKO Performance{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --orange: #FF5500;
+            --orange-light: #FF7733;
+            --orange-glow: rgba(255, 85, 0, 0.4);
+            --black: #0A0A0A;
+            --black-mid: #111111;
+            --black-card: #1A1A1A;
+            --white: #FFFFFF;
+            --white-dim: rgba(255,255,255,0.75);
+            --white-faint: rgba(255,255,255,0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--black);
+            color: var(--white);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 16px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            height: 70px;
+            background: rgba(10, 10, 10, 0.92);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 85, 0, 0.25);
+        }
+
+        .navbar::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--orange), var(--orange-light), var(--orange), transparent);
+        }
+
+        /* Logo */
+        .navbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: var(--orange);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Bebas Neue', cursive;
+            font-size: 18px;
+            color: var(--white);
+            transition: transform 0.3s ease;
+        }
+
+        .navbar-logo:hover .logo-icon {
+            transform: rotate(30deg);
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1;
+        }
+
+        .logo-mko {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 24px;
+            color: var(--white);
+            letter-spacing: 4px;
+        }
+
+        .logo-perf {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 10px;
+            color: var(--orange);
+            letter-spacing: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Nav Links (after login) */
+        .navbar-links {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            list-style: none;
+        }
+
+        .navbar-links a {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 18px;
+            color: var(--white-dim);
+            text-decoration: none;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            border-radius: 3px;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+
+        .navbar-links a::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: var(--orange);
+            transition: width 0.3s ease;
+        }
+
+        .navbar-links a:hover,
+        .navbar-links a.active {
+            color: var(--white);
+        }
+
+        .navbar-links a:hover::before,
+        .navbar-links a.active::before {
+            width: 70%;
+        }
+
+        .navbar-links a .nav-icon {
+            font-size: 16px;
+        }
+
+        /* Panier badge */
+        .cart-badge {
+            position: relative;
+        }
+
+        .cart-badge .badge {
+            position: absolute;
+            top: -6px;
+            right: -4px;
+            background: var(--orange);
+            color: var(--white);
+            font-size: 9px;
+            font-weight: 700;
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Auth buttons */
+        .navbar-auth {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-signin {
+            padding: 9px 24px;
+            background: transparent;
+            border: 1.5px solid rgba(255,255,255,0.3);
+            color: var(--white);
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            border-radius: 2px;
+            transition: all 0.25s ease;
+        }
+
+        .btn-signin:hover {
+            border-color: var(--white);
+            color: var(--white);
+        }
+
+        .btn-signup {
+            padding: 9px 24px;
+            background: var(--orange);
+            border: 1.5px solid var(--orange);
+            color: var(--white);
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            border-radius: 2px;
+            clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+            transition: all 0.25s ease;
+        }
+
+        .btn-signup:hover {
+            background: var(--orange-light);
+            box-shadow: 0 0 20px var(--orange-glow);
+        }
+
+        /* User menu */
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--orange), #cc4400);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Bebas Neue', cursive;
+            font-size: 16px;
+            color: var(--white);
+            cursor: pointer;
+        }
+
+        .btn-logout {
+            padding: 7px 18px;
+            background: transparent;
+            border: 1px solid rgba(255,85,0,0.4);
+            color: var(--orange);
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            font-size: 12px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            text-decoration: none;
+            border-radius: 2px;
+            transition: all 0.25s ease;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255,85,0,0.1);
+            border-color: var(--orange);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        main {
+            flex: 1;
+            padding-top: 70px;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            background: var(--black-mid);
+            border-top: 1px solid rgba(255,85,0,0.2);
+            padding: 60px 40px 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        footer::before {
+            content: 'MKO';
+            position: absolute;
+            bottom: -20px;
+            right: -10px;
+            font-family: 'Bebas Neue', cursive;
+            font-size: 160px;
+            color: rgba(255,85,0,0.04);
+            letter-spacing: 10px;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto 50px;
+        }
+
+        .footer-brand .footer-logo {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 32px;
+            color: var(--white);
+            letter-spacing: 6px;
+            margin-bottom: 4px;
+        }
+
+        .footer-brand .footer-logo span {
+            color: var(--orange);
+        }
+
+        .footer-brand p {
+            color: rgba(255,255,255,0.45);
+            font-size: 14px;
+            line-height: 1.7;
+            margin-top: 14px;
+            max-width: 280px;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .social-btn {
+            width: 38px;
+            height: 38px;
+            background: var(--white-faint);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white-dim);
+            font-size: 16px;
+            text-decoration: none;
+            transition: all 0.25s ease;
+        }
+
+        .social-btn:hover {
+            background: var(--orange);
+            border-color: var(--orange);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .footer-col h4 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 18px;
+            letter-spacing: 3px;
+            color: var(--orange);
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 12px;
+        }
+
+        .footer-col h4::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 30px;
+            height: 2px;
+            background: var(--orange);
+        }
+
+        .footer-col ul { list-style: none; }
+
+        .footer-col ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-col ul li a {
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-col ul li a::before {
+            content: '›';
+            color: var(--orange);
+            font-size: 18px;
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.2s;
+            transform: translateX(-6px);
+        }
+
+        .footer-col ul li a:hover {
+            color: var(--white);
+            padding-left: 4px;
+        }
+
+        .footer-col ul li a:hover::before {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .footer-contact li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .footer-contact li .icon {
+            color: var(--orange);
+            font-size: 16px;
+            margin-top: 1px;
+            flex-shrink: 0;
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .footer-bottom p {
+            color: rgba(255,255,255,0.3);
+            font-size: 13px;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-bottom p span {
+            color: var(--orange);
+        }
+
+        .footer-stripe {
+            display: flex;
+            gap: 12px;
+        }
+
+        .footer-stripe a {
+            color: rgba(255,255,255,0.3);
+            font-size: 12px;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+            transition: color 0.2s;
+        }
+
+        .footer-stripe a:hover { color: var(--orange); }
+
+        /* ===== MESSAGES ===== */
+        .messages-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            padding: 14px 20px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            animation: slideIn 0.3s ease;
+            max-width: 320px;
+        }
+
+        .message.success {
+            background: rgba(0,200,100,0.15);
+            border: 1px solid rgba(0,200,100,0.4);
+            color: #00c864;
+        }
+
+        .message.error {
+            background: rgba(255,85,0,0.15);
+            border: 1px solid rgba(255,85,0,0.4);
+            color: var(--orange-light);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(40px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            .navbar { padding: 0 20px; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 600px) {
+            .navbar-links { display: none; }
+            .footer-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar">
+        <a href="{% url 'home' %}" class="navbar-logo">
+            <div class="logo-icon">M</div>
+            <div class="logo-text">
+                <span class="logo-mko">MKO</span>
+                <span class="logo-perf">Performance</span>
+            </div>
+        </a>
+
+        {% if user.is_authenticated %}
+            <!-- NAVBAR APRÈS CONNEXION -->
+            <ul class="navbar-links">
+                <li>
+                    <a href="{% url 'home' %}" class="{% block nav_home %}{% endblock %}">
+                        <span class="nav-icon">⌂</span> Accueil
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'product_list' %}" class="{% block nav_catalog %}{% endblock %}">
+                        <span class="nav-icon">◈</span> Catalogue
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="cart-badge">
+                        <span class="nav-icon">⊡</span> Panier
+                        <span class="badge">0</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="{% block nav_orders %}{% endblock %}">
+                        <span class="nav-icon">◎</span> Mes Réservations
+                    </a>
+                </li>
+            </ul>
+            <div class="user-menu">
+                <div class="user-avatar" title="{{ user.username }}">
+                    {{ user.username|first|upper }}
+                </div>
+                <a href="{% url 'logout' %}" class="btn-logout">Déconnexion</a>
+            </div>
+        {% else %}
+            <!-- NAVBAR AVANT CONNEXION -->
+            <div class="navbar-auth">
+                <a href="{% url 'login' %}" class="btn-signin">Sign In</a>
+                <a href="{% url 'signup' %}" class="btn-signup">Sign Up</a>
+            </div>
+        {% endif %}
+    </nav>
+
+    <!-- Messages Django -->
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+            <div class="message {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ===== CONTENU PRINCIPAL ===== -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <div class="footer-grid">
+            <!-- Brand -->
+            <div class="footer-brand">
+                <div class="footer-logo">MKO <span>Performance</span></div>
+                <p>L'excellence automobile à votre service. Découvrez notre flotte de véhicules premium, disponibles à la location pour vos besoins professionnels et personnels.</p>
+                <div class="footer-social">
+                    <a href="#" class="social-btn" title="Instagram">📷</a>
+                    <a href="#" class="social-btn" title="Facebook">f</a>
+                    <a href="#" class="social-btn" title="WhatsApp">✆</a>
+                    <a href="#" class="social-btn" title="YouTube">▶</a>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="footer-col">
+                <h4>Navigation</h4>
+                <ul>
+                    <li><a href="{% url 'home' %}">Accueil</a></li>
+                    <li><a href="{% url 'product_list' %}">Catalogue</a></li>
+                    <li><a href="#">Nos Services</a></li>
+                    <li><a href="#">À propos</a></li>
+                </ul>
+            </div>
+
+            <!-- Catégories -->
+            <div class="footer-col">
+                <h4>Catégories</h4>
+                <ul>
+                    <li><a href="#">SUV & 4x4</a></li>
+                    <li><a href="#">Sport & Coupé</a></li>
+                    <li><a href="#">Berlines</a></li>
+                    <li><a href="#">Convertibles</a></li>
+                    <li><a href="#">Pick-up</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact -->
+            <div class="footer-col">
+                <h4>Contact</h4>
+                <ul class="footer-contact">
+                    <li>
+                        <span class="icon">📍</span>
+                        <span>Casablanca, Maroc</span>
+                    </li>
+                    <li>
+                        <span class="icon">📞</span>
+                        <span>+212 6XX XXX XXX</span>
+                    </li>
+                    <li>
+                        <span class="icon">✉</span>
+                        <span>contact@mko-performance.ma</span>
+                    </li>
+                    <li>
+                        <span class="icon">⏰</span>
+                        <span>Lun–Sam : 09h – 19h</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2025 <span>MKO Performance</span> — Tous droits réservés.</p>
+            <div class="footer-stripe">
+                <a href="#">Politique de confidentialité</a>
+                <a href="#">CGU</a>
+                <a href="#">Mentions légales</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Auto-dismiss messages after 4s
+        setTimeout(() => {
+            document.querySelectorAll('.message').forEach(m => {
+                m.style.transition = 'opacity 0.5s';
+                m.style.opacity = '0';
+                setTimeout(() => m.remove(), 500);
+            });
+        }, 4000);
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('.navbar');
+            nav.style.background = window.scrollY > 50
+                ? 'rgba(10,10,10,0.98)'
+                : 'rgba(10,10,10,0.92)';
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
