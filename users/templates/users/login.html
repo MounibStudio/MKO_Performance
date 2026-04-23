@@ -1,26 +1,235 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion - MKO Performance</title>
-</head>
-<body>
-    <h1>Connexion</h1>
-    {% if messages %}
-        {% for message in messages %}
-            <p style="color: red;">{{ message }}</p>
-        {% endfor %}
-    {% endif %}
-    <form method="POST" action="{% url 'login' %}">
-        {% csrf_token %}
-        <label>Nom d'utilisateur:</label>
-        <input type="text" name="username" required><br><br>
-        <label>Mot de passe:</label>
-        <input type="password" name="password" required><br><br>
-        <button type="submit">Se connecter</button>
-    </form>
-    <p>Pas de compte? <a href="{% url 'signup' %}">S'inscrire</a></p>
-    <a href="{% url 'home' %}">Retour à l'accueil</a>
-</body>
-</html>
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Connexion — MKO Performance{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-page {
+        min-height: calc(100vh - 70px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-page::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255,85,0,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,85,0,0.04) 1px, transparent 1px);
+        background-size: 50px 50px;
+    }
+
+    .auth-page::after {
+        content: 'SIGN IN';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-family: 'Bebas Neue', cursive;
+        font-size: 200px;
+        color: rgba(255,85,0,0.03);
+        white-space: nowrap;
+        pointer-events: none;
+        letter-spacing: 20px;
+    }
+
+    .auth-card {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        max-width: 460px;
+        background: var(--black-card);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-top: 3px solid var(--orange);
+        padding: 50px 48px;
+        animation: cardIn 0.6s ease;
+    }
+
+    @keyframes cardIn {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .auth-logo {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 28px;
+        color: var(--white);
+        letter-spacing: 5px;
+        margin-bottom: 6px;
+    }
+
+    .auth-logo span { color: var(--orange); }
+
+    .auth-title {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 42px;
+        color: var(--white);
+        letter-spacing: 3px;
+        line-height: 1;
+        margin-bottom: 8px;
+    }
+
+    .auth-subtitle {
+        color: rgba(255,255,255,0.4);
+        font-size: 14px;
+        letter-spacing: 0.5px;
+    }
+
+    /* Form fields */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 3px;
+        color: rgba(255,255,255,0.5);
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 14px 18px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 2px;
+        color: var(--white);
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all 0.25s ease;
+        outline: none;
+    }
+
+    .form-control::placeholder {
+        color: rgba(255,255,255,0.2);
+        font-weight: 400;
+    }
+
+    .form-control:focus {
+        border-color: var(--orange);
+        background: rgba(255,85,0,0.04);
+        box-shadow: 0 0 0 3px rgba(255,85,0,0.08);
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 16px;
+        background: var(--orange);
+        color: var(--white);
+        border: none;
+        font-family: 'Bebas Neue', cursive;
+        font-size: 20px;
+        letter-spacing: 4px;
+        cursor: pointer;
+        clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+
+    .btn-submit::before {
+        content: '';
+        position: absolute;
+        top: 0; left: -100%;
+        width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+        transition: left 0.4s ease;
+    }
+
+    .btn-submit:hover::before { left: 100%; }
+    .btn-submit:hover {
+        background: var(--orange-light);
+        box-shadow: 0 0 30px var(--orange-glow);
+    }
+
+    .auth-divider {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin: 28px 0;
+        color: rgba(255,255,255,0.2);
+        font-size: 12px;
+        letter-spacing: 2px;
+        font-weight: 600;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: rgba(255,255,255,0.08);
+    }
+
+    .auth-footer {
+        text-align: center;
+        color: rgba(255,255,255,0.4);
+        font-size: 14px;
+    }
+
+    .auth-footer a {
+        color: var(--orange);
+        text-decoration: none;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        transition: color 0.2s;
+    }
+
+    .auth-footer a:hover { color: var(--orange-light); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo">MKO <span>Performance</span></div>
+            <h1 class="auth-title">Connexion</h1>
+            <p class="auth-subtitle">Accédez à votre espace personnel</p>
+        </div>
+
+        <form method="POST" action="{% url 'login' %}">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label" for="username">Nom d'utilisateur</label>
+                <input type="text" id="username" name="username" class="form-control"
+                       placeholder="Votre identifiant" required autocomplete="username">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" class="form-control"
+                       placeholder="••••••••" required autocomplete="current-password">
+            </div>
+
+            <button type="submit" class="btn-submit">Se connecter →</button>
+        </form>
+
+        <div class="auth-divider">ou</div>
+
+        <div class="auth-footer">
+            Pas encore de compte ?
+            <a href="{% url 'signup' %}">Créer un compte</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

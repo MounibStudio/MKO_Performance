@@ -1,11 +1,531 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>Hello</h1>
-</body>
-</html>
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}MKO Performance — Location de Voitures Premium{% endblock %}
+{% block nav_home %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ===== HERO ===== */
+    .hero {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        background: var(--black);
+    }
+
+    /* Animated grid background */
+    .hero-grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255,85,0,0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,85,0,0.06) 1px, transparent 1px);
+        background-size: 60px 60px;
+        animation: gridMove 20s linear infinite;
+    }
+
+    @keyframes gridMove {
+        from { background-position: 0 0; }
+        to { background-position: 60px 60px; }
+    }
+
+    /* Radial glow */
+    .hero-glow {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 700px;
+        height: 700px;
+        background: radial-gradient(circle, rgba(255,85,0,0.12) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    /* Diagonal stripes */
+    .hero-stripes {
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(
+            -55deg,
+            transparent,
+            transparent 80px,
+            rgba(255,85,0,0.015) 80px,
+            rgba(255,85,0,0.015) 82px
+        );
+        pointer-events: none;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        padding: 40px 20px;
+        max-width: 900px;
+    }
+
+    .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 5px;
+        color: var(--orange);
+        text-transform: uppercase;
+        margin-bottom: 20px;
+        opacity: 0;
+        animation: fadeUp 0.8s ease 0.2s forwards;
+    }
+
+    .hero-eyebrow::before,
+    .hero-eyebrow::after {
+        content: '';
+        width: 40px;
+        height: 1px;
+        background: var(--orange);
+    }
+
+    .hero-title {
+        font-family: 'Bebas Neue', cursive;
+        font-size: clamp(72px, 12vw, 140px);
+        line-height: 0.9;
+        color: var(--white);
+        letter-spacing: 2px;
+        margin-bottom: 10px;
+        opacity: 0;
+        animation: fadeUp 0.8s ease 0.4s forwards;
+    }
+
+    .hero-title .highlight {
+        color: var(--orange);
+        position: relative;
+        display: inline-block;
+    }
+
+    .hero-title .highlight::after {
+        content: '';
+        position: absolute;
+        bottom: 6px;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--orange);
+        transform: skewX(-5deg);
+    }
+
+    .hero-subtitle {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: clamp(18px, 3vw, 26px);
+        font-weight: 400;
+        color: rgba(255,255,255,0.5);
+        letter-spacing: 8px;
+        text-transform: uppercase;
+        margin-bottom: 50px;
+        opacity: 0;
+        animation: fadeUp 0.8s ease 0.6s forwards;
+    }
+
+    .hero-cta {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        opacity: 0;
+        animation: fadeUp 0.8s ease 0.8s forwards;
+    }
+
+    .cta-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 16px 40px;
+        background: var(--orange);
+        color: var(--white);
+        text-decoration: none;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.4s ease;
+    }
+
+    .cta-primary:hover::before { left: 100%; }
+    .cta-primary:hover {
+        box-shadow: 0 0 40px var(--orange-glow);
+        transform: translateY(-2px);
+    }
+
+    .cta-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 15px 36px;
+        background: transparent;
+        color: var(--white);
+        text-decoration: none;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        border: 1.5px solid rgba(255,255,255,0.25);
+        border-radius: 2px;
+        transition: all 0.3s ease;
+    }
+
+    .cta-secondary:hover {
+        border-color: var(--white);
+        background: rgba(255,255,255,0.05);
+    }
+
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Stats strip */
+    .stats-strip {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(255,85,0,0.08);
+        border-top: 1px solid rgba(255,85,0,0.2);
+        display: flex;
+        justify-content: center;
+        gap: 0;
+        padding: 0 40px;
+        z-index: 2;
+    }
+
+    .stat-item {
+        padding: 20px 50px;
+        text-align: center;
+        border-right: 1px solid rgba(255,85,0,0.15);
+        flex: 1;
+        max-width: 200px;
+    }
+
+    .stat-item:last-child { border-right: none; }
+
+    .stat-num {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 36px;
+        color: var(--orange);
+        letter-spacing: 2px;
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 3px;
+        color: rgba(255,255,255,0.4);
+        text-transform: uppercase;
+        margin-top: 4px;
+    }
+
+    /* ===== CATEGORIES SECTION ===== */
+    .section {
+        padding: 100px 40px;
+        max-width: 1300px;
+        margin: 0 auto;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 60px;
+    }
+
+    .section-tag {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 5px;
+        color: var(--orange);
+        text-transform: uppercase;
+        margin-bottom: 12px;
+    }
+
+    .section-title {
+        font-family: 'Bebas Neue', cursive;
+        font-size: clamp(40px, 6vw, 72px);
+        color: var(--white);
+        letter-spacing: 3px;
+        line-height: 1;
+    }
+
+    .section-title span { color: var(--orange); }
+
+    /* Category cards */
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+    }
+
+    .cat-card {
+        background: var(--black-card);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 4px;
+        padding: 36px 24px;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.35s ease;
+        position: relative;
+        overflow: hidden;
+        group: true;
+    }
+
+    .cat-card::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--orange);
+        transform: scaleX(0);
+        transition: transform 0.35s ease;
+    }
+
+    .cat-card:hover {
+        border-color: rgba(255,85,0,0.3);
+        transform: translateY(-6px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+
+    .cat-card:hover::before { transform: scaleX(1); }
+
+    .cat-icon {
+        font-size: 42px;
+        margin-bottom: 16px;
+        display: block;
+        filter: grayscale(0.3);
+        transition: transform 0.3s ease;
+    }
+
+    .cat-card:hover .cat-icon { transform: scale(1.1); }
+
+    .cat-name {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 20px;
+        color: var(--white);
+        letter-spacing: 2px;
+        margin-bottom: 6px;
+    }
+
+    .cat-count {
+        font-size: 12px;
+        color: rgba(255,255,255,0.4);
+        letter-spacing: 1px;
+        font-weight: 600;
+    }
+
+    /* ===== WHY US ===== */
+    .why-section {
+        background: var(--black-mid);
+        border-top: 1px solid rgba(255,85,0,0.1);
+        border-bottom: 1px solid rgba(255,85,0,0.1);
+        padding: 100px 40px;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 40px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .feature-card {
+        padding: 40px;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+        background: rgba(255,85,0,0.05);
+        border-color: rgba(255,85,0,0.2);
+    }
+
+    .feature-num {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 64px;
+        color: rgba(255,85,0,0.15);
+        line-height: 1;
+        margin-bottom: -10px;
+    }
+
+    .feature-title {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 26px;
+        color: var(--white);
+        letter-spacing: 2px;
+        margin-bottom: 14px;
+    }
+
+    .feature-desc {
+        color: rgba(255,255,255,0.45);
+        font-size: 15px;
+        line-height: 1.7;
+    }
+
+    @media (max-width: 1000px) {
+        .categories-grid { grid-template-columns: repeat(2, 1fr); }
+        .features-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 600px) {
+        .stats-strip { display: none; }
+        .categories-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-stripes"></div>
+    <div class="hero-glow"></div>
+
+    <div class="hero-content">
+        <div class="hero-eyebrow">Location de Voitures Premium</div>
+        <h1 class="hero-title">
+            MKO<br>
+            <span class="highlight">Performance</span>
+        </h1>
+        <p class="hero-subtitle">L'excellence à votre volant</p>
+        <div class="hero-cta">
+            <a href="{% url 'product_list' %}" class="cta-primary">
+                ◈ Voir le Catalogue
+            </a>
+            {% if not user.is_authenticated %}
+            <a href="{% url 'signup' %}" class="cta-secondary">
+                Créer un compte →
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="stats-strip">
+        <div class="stat-item">
+            <div class="stat-num">50+</div>
+            <div class="stat-label">Véhicules</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num">8</div>
+            <div class="stat-label">Catégories</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num">500+</div>
+            <div class="stat-label">Clients</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num">24/7</div>
+            <div class="stat-label">Support</div>
+        </div>
+    </div>
+</section>
+
+<!-- CATEGORIES -->
+<section style="padding: 100px 40px;">
+    <div class="section-header">
+        <div class="section-tag">Notre Flotte</div>
+        <h2 class="section-title">8 Catégories<br><span>Disponibles</span></h2>
+    </div>
+    <div class="categories-grid" style="max-width:1200px; margin:0 auto;">
+        <a href="{% url 'product_list' %}" class="cat-card">
+            <span class="cat-icon">🚗</span>
+            <div class="cat-name">Berlines</div>
+            <div class="cat-count">3 véhicules</div>
+        </a>
+        <a href="{% url 'product_list' %}" class="cat-card">
+            <span class="cat-icon">🚙</span>
+            <div class="cat-name">SUV</div>
+            <div class="cat-count">5 véhicules</div>
+        </a>
+        <a href="{% url 'product_list' %}" class="cat-card">
+            <span class="cat-icon">🏎️</span>
+            <div class="cat-name">Sport</div>
+            <div class="cat-count">3 véhicules</div>
+        </a>
+        <a href="{% url 'product_list' %}" class="cat-card">
+            <span class="cat-icon">🚘</span>
+            <div class="cat-name">Coupé</div>
+            <div class="cat-count">3 véhicules</div>
+        </a>
+        <a href="{% url 'product_list' %}" class="cat-card">
+            <span class="cat-icon">🌬️</span>
+            <div class="cat-name">Convertible</div>
+            <div class="cat-count">3 véhicules</div>
+        </a>
+        <a href="{% url 'product_list' %}" class="cat-card">
+            <span class="cat-icon">⚡</span>
+            <div class="cat-name">Hot Hatch</div>
+            <div class="cat-count">5 véhicules</div>
+        </a>
+        <a href="{% url 'product_list' %}" class="cat-card">
+            <span class="cat-icon">🛻</span>
+            <div class="cat-name">Pickup</div>
+            <div class="cat-count">3 véhicules</div>
+        </a>
+        <a href="{% url 'product_list' %}" class="cat-card">
+            <span class="cat-icon">🚐</span>
+            <div class="cat-name">Limousine</div>
+            <div class="cat-count">1 véhicule</div>
+        </a>
+    </div>
+</section>
+
+<!-- WHY US -->
+<section class="why-section">
+    <div class="section-header">
+        <div class="section-tag">Pourquoi nous choisir</div>
+        <h2 class="section-title">L'<span>Excellence</span><br>avant tout</h2>
+    </div>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-num">01</div>
+            <div class="feature-title">Flotte Premium</div>
+            <p class="feature-desc">Tous nos véhicules sont rigoureusement sélectionnés pour offrir une expérience de conduite inégalée. BMW, Mercedes, Audi, Nissan et bien plus.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-num">02</div>
+            <div class="feature-title">Réservation Simple</div>
+            <p class="feature-desc">Réservez votre véhicule en quelques clics, choisissez vos dates et récupérez votre voiture. Aucune complication, aucune surprise.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-num">03</div>
+            <div class="feature-title">Support 24/7</div>
+            <p class="feature-desc">Notre équipe est disponible à toute heure pour vous accompagner avant, pendant et après votre location. Votre satisfaction est notre priorité.</p>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
