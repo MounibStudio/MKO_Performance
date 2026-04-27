@@ -4,9 +4,9 @@ from .models import Voiture, Category
 
 class ProductListView(View):
     def get(self, request):
-        voitures = Voiture.objects.all().select_related('Category')
+        voitures = Voiture.objects.all().select_related('category')
         categories = Category.objects.all()
         return render(request, 'products/product_list.html', {
-            'voitures': voitures,
+            'products': voitures,
             'categories': categories
         })
