@@ -11,6 +11,6 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Voiture)
 class VoitureAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nom', 'marque', 'modele', 'prix', 'stock', 'Category')
+    list_display = ('id', 'nom', 'marque', 'modele', 'prix', 'stock', 'category')
     search_fields = ('nom', 'marque')
-    list_filter = ('Category',)
+    list_filter = ('category',)

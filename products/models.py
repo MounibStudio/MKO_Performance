@@ -19,7 +19,7 @@ class Voiture(models.Model):
     image_exterieur = models.ImageField(upload_to='voitures/exterieur/')
     image_interieur = models.ImageField(upload_to='voitures/interieur/')
 
-    Category = models.ForeignKey(
+    category = models.ForeignKey(
         'products.Category',
         on_delete=models.CASCADE,
         related_name="voitures"
