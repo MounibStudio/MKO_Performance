@@ -549,6 +549,14 @@
                         <span class="nav-icon">◎</span> Mes Réservations
                     </a>
                 </li>
+                <li>
+                 {% if request.user.is_staff %}
+                    <a href="/admin/">
+                    <span class="nav-icon">🏠︎</span> Administration 
+                    </a>
+                {% endif %}
+                </li>
+
             </ul>
             <div class="user-menu">
                 <div class="user-avatar" title="{{ user.username }}">
