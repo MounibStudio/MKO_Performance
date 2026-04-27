@@ -24,8 +24,8 @@ VOITURES_DATA = [
     "description": "Cabriolet Audi élégant.",
     "prix": 900.00,
     "stock": 1,
-    "image_exterieur": "products/CONVERTIBLE AUTOMATIQUE/Audi A5 Cabriolet 2021/Audi-A5-Cabriolet-Exterior-108960.avif",
-    "image_interieur": "products/CONVERTIBLE AUTOMATIQUE/Audi A5 Cabriolet 2021/txt_audi-a5-cabriolet-2017-20.jpg",
+    "image_exterieur": "products/CONVERTIBLE AUTOMATIQUE/Audi A5 Cabriolet 2021/audi_ext.avif",
+    "image_interieur": "products/CONVERTIBLE AUTOMATIQUE/Audi A5 Cabriolet 2021/audi_int.jpg",
 },
 {
     "category": "CONVERTIBLE AUTOMATIQUE",
@@ -36,8 +36,8 @@ VOITURES_DATA = [
     "description": "Cabriolet BMW sportif.",
     "prix": 1200.00,
     "stock": 1,
-    "image_exterieur": "products/CONVERTIBLE AUTOMATIQUE/BMW M4 CABRIOLET 2021/5512.jpg",
-    "image_interieur": "products/CONVERTIBLE AUTOMATIQUE/BMW M4 CABRIOLET 2021/bmw-m4-competition-cabrio-mit-m-xdrive-mg-04.avif",
+    "image_exterieur": "media/products/CONVERTIBLE AUTOMATIQUE/BMW M4 CABRIOLET 2021/m4_ext.avif",
+    "image_interieur": "media/products/CONVERTIBLE AUTOMATIQUE/BMW M4 CABRIOLET 2021/m4_int.jpg",
 },
 {
     "category": "CONVERTIBLE AUTOMATIQUE",
@@ -48,8 +48,8 @@ VOITURES_DATA = [
     "description": "Cabriolet Mercedes haut de gamme.",
     "prix": 1400.00,
     "stock": 1,
-    "image_exterieur": "products/CONVERTIBLE AUTOMATIQUE/New 2026 Mercedes-Benz CLE CLE 450/199b8fc14ce81bbbbe0362a9c3d421d3.jpg",
-    "image_interieur": "products/CONVERTIBLE AUTOMATIQUE/New 2026 Mercedes-Benz CLE CLE 450/download.webp",
+    "image_exterieur": "products/CONVERTIBLE AUTOMATIQUE/New 2026 Mercedes-Benz CLE CLE 450/mercedes_ext.webp",
+    "image_interieur": "products/CONVERTIBLE AUTOMATIQUE/New 2026 Mercedes-Benz CLE CLE 450/mercedes_int.jpg",
 },
 
 # ─── COUPE ─────────────────────────
@@ -115,8 +115,8 @@ VOITURES_DATA = [
     "description": "Compacte Hyundai.",
     "prix": 400.00,
     "stock": 1,
-    "image_exterieur": "products/Hot hatch AUTOMATIQUE/2021 Hyundai i30 hatch/2021-Hyundai-i30-Elite-hatch-white-1001x565-1.webp",
-    "image_interieur": "products/Hot hatch AUTOMATIQUE/2021 Hyundai i30 hatch/i30-pde-interior-refined-smooth-and-comfortable-pc.avif",
+    "image_exterieur": "products/Hot hatch AUTOMATIQUE/2021 Hyundai i30 hatch/hyundai_ext.webp",
+    "image_interieur": "products/Hot hatch AUTOMATIQUE/2021 Hyundai i30 hatch/hyundai_int.avif",
 },
 {
     "category": "HOT HATCH",
@@ -127,8 +127,8 @@ VOITURES_DATA = [
     "description": "Golf sportive.",
     "prix": 650.00,
     "stock": 1,
-    "image_exterieur": "products/Hot hatch AUTOMATIQUE/2026 Volkswagen Golf R 2.0T/mythos black metallic-0E0E-32,31,29-640-en_US.avif",
-    "image_interieur": "products/Hot hatch AUTOMATIQUE/2026 Volkswagen Golf R 2.0T/volkswagen-golf-gte-2024-foto2-1140x760.jpg",
+    "image_exterieur": "products/Hot hatch AUTOMATIQUE/2026 Volkswagen Golf R 2.0T/golf_ext.avif",
+    "image_interieur": "products/Hot hatch AUTOMATIQUE/2026 Volkswagen Golf R 2.0T/golf_int.jpg",
 },
 {
     "category": "HOT HATCH",
@@ -151,8 +151,8 @@ VOITURES_DATA = [
     "description": "Peugeot moderne.",
     "prix": 350.00,
     "stock": 1,
-    "image_exterieur": "products/Hot hatch AUTOMATIQUE/PEUGEOT New 208 2025/PEUGEOT-208-ANGULO-IMG-STORE.png",
-    "image_interieur": "products/Hot hatch AUTOMATIQUE/PEUGEOT New 208 2025/PEUGEOT-208-INTERIOR-2-IMG-STORE.webp",
+    "image_exterieur": "products/Hot hatch AUTOMATIQUE/PEUGEOT New 208 2025/peugot_ext.png",
+    "image_interieur": "products/Hot hatch AUTOMATIQUE/PEUGEOT New 208 2025/peugot_int.webp",
 },
 {
     "category": "HOT HATCH",
@@ -163,8 +163,8 @@ VOITURES_DATA = [
     "description": "Megane sportive.",
     "prix": 450.00,
     "stock": 1,
-    "image_exterieur": "products/Hot hatch AUTOMATIQUE/RENAULT , Renault, Megane, Estate, GT Line/renault-estate-gt-line-worldwide.jpg",
-    "image_interieur": "products/Hot hatch AUTOMATIQUE/RENAULT , Renault, Megane, Estate, GT Line/S0-renault-lance-une-serie-limitee-sur-la-megane-gt-line-574869.jpg",
+    "image_exterieur": "products/Hot hatch AUTOMATIQUE/RENAULT , Renault, Megane, Estate, GT Line/renault_ext.jpg",
+    "image_interieur": "products/Hot hatch AUTOMATIQUE/RENAULT , Renault, Megane, Estate, GT Line/renault_int.jpg",
 },
 
 # ─── PICKUP ─────────────────────────
@@ -189,8 +189,8 @@ VOITURES_DATA = [
     "description": "Pickup Amarok.",
     "prix": 650.00,
     "stock": 1,
-    "image_exterieur": "products/Pickup truck AUTOMATIQUE/Amarok  4X4 Ute  Volkswagen 2014/bc92c07172e9382eae90f003e98bc3c6.jpg",
-    "image_interieur": "products/Pickup truck AUTOMATIQUE/Amarok  4X4 Ute  Volkswagen 2014/S0-volkswagen-amarok-restyle-voici-l-interieur-108315.jpg",
+    "image_exterieur": "products/Pickup truck AUTOMATIQUE/Amarok  4X4 Ute  Volkswagen 2014/amarok_exterior.jpg",
+    "image_interieur": "products/Pickup truck AUTOMATIQUE/Amarok  4X4 Ute  Volkswagen 2014/amarok_interior.jpg",
 },
 {
     "category": "PICKUP",
@@ -202,7 +202,7 @@ VOITURES_DATA = [
     "prix": 900.00,
     "stock": 1,
     "image_exterieur": "products/Pickup truck AUTOMATIQUE/FORD raptor 2018/(photo-sp)-1562340549.jpg",
-    "image_interieur": "products/Pickup truck AUTOMATIQUE/FORD raptor 2018/128-1287733_ford-raptor-transparent-background-hd-png-download.png",
+    "image_interieur": "products/Pickup truck AUTOMATIQUE/FORD raptor 2018/ford_raptor_exterior.png",
 },
 
 
