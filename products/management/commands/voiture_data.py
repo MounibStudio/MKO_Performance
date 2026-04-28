@@ -36,8 +36,8 @@ VOITURES_DATA = [
     "description": "Cabriolet BMW sportif.",
     "prix": 1200.00,
     "stock": 1,
-    "image_exterieur": "media/products/CONVERTIBLE AUTOMATIQUE/BMW M4 CABRIOLET 2021/m4_ext.avif",
-    "image_interieur": "media/products/CONVERTIBLE AUTOMATIQUE/BMW M4 CABRIOLET 2021/m4_int.jpg",
+    "image_exterieur": "products/CONVERTIBLE AUTOMATIQUE/BMW M4 CABRIOLET 2021/m4_ext.jpg",
+    "image_interieur": "products/CONVERTIBLE AUTOMATIQUE/BMW M4 CABRIOLET 2021/m4_int.avif",
 },
 {
     "category": "CONVERTIBLE AUTOMATIQUE",
@@ -48,8 +48,8 @@ VOITURES_DATA = [
     "description": "Cabriolet Mercedes haut de gamme.",
     "prix": 1400.00,
     "stock": 1,
-    "image_exterieur": "products/CONVERTIBLE AUTOMATIQUE/New 2026 Mercedes-Benz CLE CLE 450/mercedes_ext.webp",
-    "image_interieur": "products/CONVERTIBLE AUTOMATIQUE/New 2026 Mercedes-Benz CLE CLE 450/mercedes_int.jpg",
+    "image_exterieur": "products/CONVERTIBLE AUTOMATIQUE/New 2026 Mercedes-Benz CLE CLE 450/mercedes_int.jpg",
+    "image_interieur": "products/CONVERTIBLE AUTOMATIQUE/New 2026 Mercedes-Benz CLE CLE 450/mercedes_ext.webp",
 },
 
 # ─── COUPE ─────────────────────────
@@ -201,8 +201,8 @@ VOITURES_DATA = [
     "description": "Pickup Ford Raptor.",
     "prix": 900.00,
     "stock": 1,
-    "image_exterieur": "products/Pickup truck AUTOMATIQUE/FORD raptor 2018/(photo-sp)-1562340549.jpg",
-    "image_interieur": "products/Pickup truck AUTOMATIQUE/FORD raptor 2018/ford_raptor_exterior.png",
+    "image_exterieur": "products/Pickup truck AUTOMATIQUE/FORD raptor 2018/ford_raptor_exterior.png",
+    "image_interieur": "products/Pickup truck AUTOMATIQUE/FORD raptor 2018/(photo-sp)-1562340549.jpg",
 },
 
 

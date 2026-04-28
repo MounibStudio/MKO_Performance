@@ -13,20 +13,18 @@ class Commande(models.Model):
     cree_le = models.DateTimeField(auto_now_add=True)
     adresse = models.TextField()
 
-    date_debut = models.DateTimeField()
-    date_fin = models.DateTimeField()
+    
 
     def __str__(self):
         return f"Commande {self.id}"
 
-    def clean(self):
-        if self.date_fin < self.date_debut:
-            raise ValidationError(
-                "La date de fin doit être après la date de début."
-            )
+   
 
 
 class ArticleCommande(models.Model):
+    date_debut = models.DateTimeField(null=True, blank=True)
+    date_fin   =  models.DateTimeField(null=True, blank=True)
+
     commande = models.ForeignKey(
         'orders.Commande',
         on_delete=models.CASCADE,
@@ -42,4 +40,12 @@ class ArticleCommande(models.Model):
     prix = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
-        return f"{self.voiture.nom} x {self.quantite}"
+        return f"{self.voiture.nom} x {self.quantite}"  
+    
+    
+    
+    def clean(self):
+        if self.date_fin < self.date_debut:
+            raise ValidationError(
+                "La date de fin doit être après la date de début."
+            ) 

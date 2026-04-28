@@ -17,5 +17,5 @@ class CommandeAdmin(admin.ModelAdmin):
 
 @admin.register(ArticleCommande)
 class ArticleCommandeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'commande', 'voiture', 'quantite', 'prix')
+    list_display = ('id', 'commande', 'voiture', 'quantite', 'prix' ,'date_debut','date_fin')
     list_filter = ('commande',)
