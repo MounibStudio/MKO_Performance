@@ -1,29 +1,1329 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Nos Produits</title>
-    <style>
-        table, th, td { border: 1px solid black; border-collapse: collapse; padding: 10px; }
-    </style>
-</head>
-<body>
-    <h1>Nos Produits</h1>
-    <table>
-        <tr>
-            <th>Nom</th>
-            <th>Marque</th>
-            <th>Catégorie</th>
-            <th>Stock</th>
-        </tr>
-        {% for product in products %}
-        <tr>
-            <td>{{ product.nom }}</td>
-            <td>{{ product.marque }}</td>
-            <td>{{ product.category.nom }}</td>
-            <td>{{ product.stock }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-</body>
-</html>
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Catalogue — MKO Performance{% endblock %}
+{% block nav_catalog %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ===== PAGE HEADER ===== */
+    .catalog-header {
+        background: var(--black-mid);
+        border-bottom: 1px solid rgba(255,85,0,0.15);
+        padding: 50px 40px 40px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .catalog-header::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255,85,0,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,85,0,0.04) 1px, transparent 1px);
+        background-size: 40px 40px;
+    }
+
+    .catalog-header::after {
+        content: 'CATALOGUE';
+        position: absolute;
+        right: -20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-family: 'Bebas Neue', cursive;
+        font-size: 120px;
+        color: rgba(255,85,0,0.04);
+        letter-spacing: 10px;
+        pointer-events: none;
+        white-space: nowrap;
+    }
+
+    .catalog-header-inner {
+        position: relative;
+        z-index: 1;
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .catalog-tag {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 5px;
+        color: var(--orange);
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .catalog-tag::before {
+        content: '';
+        width: 30px;
+        height: 1px;
+        background: var(--orange);
+    }
+
+    .catalog-title {
+        font-family: 'Bebas Neue', cursive;
+        font-size: clamp(40px, 5vw, 64px);
+        color: var(--white);
+        letter-spacing: 3px;
+        line-height: 1;
+    }
+
+    .catalog-title span { color: var(--orange); }
+
+    .catalog-count {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 56px;
+        color: var(--orange);
+        letter-spacing: 2px;
+        line-height: 1;
+    }
+
+    .catalog-count small {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        color: rgba(255,255,255,0.4);
+        letter-spacing: 3px;
+        display: block;
+        text-transform: uppercase;
+    }
+
+    /* ===== LAYOUT ===== */
+    .catalog-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 0;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 40px 40px 80px;
+        align-items: start;
+    }
+
+    /* ===== SIDEBAR FILTERS ===== */
+    .sidebar {
+        position: sticky;
+        top: 90px;
+        padding-right: 30px;
+    }
+
+    .filter-block {
+        background: var(--black-card);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-left: 3px solid var(--orange);
+        padding: 24px;
+        margin-bottom: 16px;
+    }
+
+    .filter-title {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 18px;
+        letter-spacing: 3px;
+        color: var(--white);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .filter-title::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: rgba(255,255,255,0.06);
+    }
+
+    /* Search */
+    .search-input {
+        width: 100%;
+        padding: 11px 14px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 2px;
+        color: var(--white);
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        outline: none;
+        transition: border-color 0.25s;
+    }
+
+    .search-input::placeholder { color: rgba(255,255,255,0.25); }
+    .search-input:focus { border-color: var(--orange); }
+
+    /* Category pills */
+    .cat-filter {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .cat-pill {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 2px;
+        color: rgba(255,255,255,0.55);
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+        font-size: 13px;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+    }
+
+    .cat-pill:hover {
+        border-color: rgba(255,85,0,0.3);
+        color: var(--white);
+    }
+
+    .cat-pill.active {
+        background: rgba(255,85,0,0.12);
+        border-color: var(--orange);
+        color: var(--orange);
+    }
+
+    .cat-pill .cat-num {
+        background: rgba(255,255,255,0.07);
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 11px;
+    }
+
+    .cat-pill.active .cat-num {
+        background: rgba(255,85,0,0.2);
+    }
+
+    /* Price range */
+    .price-range {
+        padding: 8px 0;
+    }
+
+    .price-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 14px;
+    }
+
+    .price-val {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 20px;
+        color: var(--orange);
+        letter-spacing: 1px;
+    }
+
+    .price-val small {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 11px;
+        color: rgba(255,255,255,0.4);
+        display: block;
+        letter-spacing: 2px;
+        font-weight: 600;
+    }
+
+    .range-slider {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 4px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 2px;
+        outline: none;
+        margin-bottom: 8px;
+    }
+
+    .range-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        background: var(--orange);
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 0 10px var(--orange-glow);
+        transition: transform 0.2s;
+    }
+
+    .range-slider::-webkit-slider-thumb:hover {
+        transform: scale(1.2);
+    }
+
+    /* Sort */
+    /* Custom dropdown */
+    .custom-select {
+        position: relative;
+        width: 100%;
+        user-select: none;
+    }
+
+    .custom-select-selected {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 11px 14px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 2px;
+        color: var(--white);
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: border-color 0.25s;
+    }
+
+    .custom-select-selected:hover,
+    .custom-select.open .custom-select-selected {
+        border-color: var(--orange);
+    }
+
+    .cs-arrow {
+        color: var(--orange);
+        font-size: 14px;
+        transition: transform 0.25s;
+    }
+
+    .custom-select.open .cs-arrow {
+        transform: rotate(180deg);
+    }
+
+    .custom-select-options {
+        display: none;
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        background: #1e1e1e;
+        border: 1px solid rgba(255,85,0,0.3);
+        border-radius: 2px;
+        z-index: 100;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .custom-select.open .custom-select-options {
+        display: block;
+        animation: dropDown 0.2s ease;
+    }
+
+    @keyframes dropDown {
+        from { opacity: 0; transform: translateY(-6px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .cs-option {
+        padding: 11px 14px;
+        color: rgba(255,255,255,0.6);
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .cs-option:last-child { border-bottom: none; }
+
+    .cs-option:hover {
+        background: rgba(255,85,0,0.1);
+        color: var(--white);
+        padding-left: 18px;
+    }
+
+    .cs-option.active {
+        color: var(--orange);
+        background: rgba(255,85,0,0.06);
+    }
+
+    /* Reset */
+    .btn-reset {
+        width: 100%;
+        padding: 11px;
+        background: transparent;
+        border: 1px solid rgba(255,85,0,0.3);
+        color: var(--orange);
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        cursor: pointer;
+        border-radius: 2px;
+        transition: all 0.25s;
+        margin-top: 6px;
+    }
+
+    .btn-reset:hover {
+        background: rgba(255,85,0,0.08);
+        border-color: var(--orange);
+    }
+
+    /* ===== CATALOG MAIN ===== */
+    .catalog-main {}
+
+    /* Toolbar */
+    .catalog-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 28px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .results-text {
+        font-size: 14px;
+        color: rgba(255,255,255,0.4);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .results-text span { color: var(--orange); }
+
+    .view-toggle {
+        display: flex;
+        gap: 4px;
+    }
+
+    .view-btn {
+        width: 36px;
+        height: 36px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: rgba(255,255,255,0.4);
+        font-size: 16px;
+        transition: all 0.2s;
+    }
+
+    .view-btn.active, .view-btn:hover {
+        background: rgba(255,85,0,0.1);
+        border-color: var(--orange);
+        color: var(--orange);
+    }
+
+    /* ===== CARS GRID ===== */
+    .cars-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .cars-grid.view-list {
+        grid-template-columns: 1fr;
+    }
+
+    /* ===== CAR CARD ===== */
+    .car-card {
+        background: var(--black-card);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 4px;
+        overflow: hidden;
+        transition: all 0.35s ease;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        animation: cardReveal 0.5s ease both;
+    }
+
+    @keyframes cardReveal {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .car-card:hover {
+        border-color: rgba(255,85,0,0.35);
+        transform: translateY(-6px);
+        box-shadow: 0 24px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,85,0,0.1);
+    }
+
+    /* Stock badge */
+    .stock-badge {
+        position: absolute;
+        top: 14px;
+        left: 14px;
+        z-index: 3;
+        padding: 5px 12px;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        border-radius: 2px;
+    }
+
+    .stock-badge.available {
+        background: rgba(0,200,100,0.15);
+        border: 1px solid rgba(0,200,100,0.4);
+        color: #00c864;
+    }
+
+    .stock-badge.low {
+        background: rgba(255,200,0,0.12);
+        border: 1px solid rgba(255,200,0,0.3);
+        color: #ffc800;
+    }
+
+    .stock-badge.reserved {
+       color: #E83333;
+       background: rgba(220, 20, 20, 0.15);
+       border: 1px solid rgba(220, 20, 20, 0.45);
+    }
+
+    .btn-reserved {
+        background: rgba(255, 50, 50, 0.15) !important;
+        border: 1px solid rgba(255, 50, 50, 0.4) !important;
+        color: #ff6c6c !important;
+        cursor: not-allowed !important;
+        clip-path: none !important;
+        border-radius: 2px !important;
+    }
+
+    .btn-reserved:hover {
+        box-shadow: 0 0 20px rgba(150,50,255,0.3) !important;
+        background: rgba(150, 50, 255, 0.25) !important;
+    }
+
+    /* ===== POPUP RÉSERVÉ ===== */
+    .popup-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.75);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+    }
+
+    .popup-overlay.show {
+        display: flex;
+        animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+
+    .popup-box {
+        background: var(--black-card);
+        border: 1px solid rgba(255, 50, 50, 0.4);
+        border-top: 3px solid #ff6c6c;
+        padding: 40px 44px;
+        max-width: 420px;
+        width: 90%;
+        text-align: center;
+        animation: popIn 0.3s ease;
+    }
+
+    @keyframes popIn {
+        from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+        to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .popup-icon {
+        font-size: 52px;
+        margin-bottom: 16px;
+    }
+
+    .popup-title {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 28px;
+        color: #ff6c6c;
+        letter-spacing: 3px;
+        margin-bottom: 10px;
+    }
+
+    .popup-car {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 20px;
+        color: var(--white);
+        letter-spacing: 2px;
+        margin-bottom: 12px;
+    }
+
+    .popup-msg {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 14px;
+        line-height: 1.6;
+        margin-bottom: 28px;
+    }
+
+    .popup-close {
+        padding: 12px 36px;
+        background: #E83333;
+        border: none;
+        color: var(--white);
+        font-family: 'Bebas Neue', cursive;
+        font-size: 18px;
+        letter-spacing: 3px;
+        cursor: pointer;
+        border-radius: 2px;
+        transition: all 0.25s;
+    }
+
+    .popup-close:hover {
+        background: #C41C1C;;
+        box-shadow: 0 0 20px rgba(255, 50, 50, 0.4);
+    }
+
+    /* Car image */
+    .car-image {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+        background: #111;
+    }
+
+    .car-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+        filter: brightness(0.9);
+    }
+
+    .car-card:hover .car-image img {
+        transform: scale(1.06);
+        filter: brightness(1);
+    }
+
+    .car-image-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(10,10,10,0.7) 0%, transparent 50%);
+        pointer-events: none;
+        z-index: 2;
+    }
+
+    /* Dual images */
+    .img-ext, .img-int {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: opacity 0.4s ease;
+        filter: brightness(0.9);
+    }
+
+    .car-card:hover .img-ext.active-img,
+    .car-card:hover .img-int.active-img { filter: brightness(1); }
+
+    .img-ext { opacity: 1; }
+    .img-int { opacity: 0; }
+    .img-ext.active-img { opacity: 1; }
+    .img-int.active-img { opacity: 1; }
+    .img-ext:not(.active-img) { opacity: 0; }
+    .img-int:not(.active-img) { opacity: 0; }
+
+    /* Placeholder */
+    .img-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #111;
+        color: rgba(255,255,255,0.2);
+        gap: 6px;
+    }
+    .img-placeholder span { font-size: 40px; opacity: 0.3; }
+    .img-placeholder small { font-size: 10px; letter-spacing: 2px; font-weight: 600; text-transform: uppercase; }
+
+    /* EXT / INT toggle */
+    .img-toggle {
+        position: absolute;
+        bottom: 42px;
+        left: 12px;
+        display: flex;
+        gap: 4px;
+        z-index: 4;
+    }
+
+    .img-toggle-btn {
+        padding: 4px 10px;
+        background: rgba(0,0,0,0.75);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: rgba(255,255,255,0.5);
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        cursor: pointer;
+        border-radius: 2px;
+        transition: all 0.2s;
+        backdrop-filter: blur(4px);
+    }
+
+    .img-toggle-btn.active {
+        background: var(--orange);
+        border-color: var(--orange);
+        color: var(--white);
+    }
+
+    .img-toggle-btn:hover:not(.active) {
+        border-color: rgba(255,255,255,0.5);
+        color: var(--white);
+    }
+
+    .car-category-tag {
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        padding: 4px 10px;
+        background: rgba(255,85,0,0.85);
+        color: var(--white);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        border-radius: 2px;
+    }
+
+    /* Car body */
+    .car-body {
+        padding: 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .car-name {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 22px;
+        color: var(--white);
+        letter-spacing: 2px;
+        line-height: 1.1;
+        margin-bottom: 4px;
+    }
+
+    .car-meta {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+    }
+
+    .car-meta span {
+        font-size: 12px;
+        font-weight: 600;
+        color: rgba(255,255,255,0.4);
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .car-meta span::before {
+        content: '•';
+        color: var(--orange);
+        font-size: 16px;
+    }
+
+    .car-meta span:first-child::before { display: none; }
+
+    .car-desc {
+        font-size: 13px;
+        color: rgba(255,255,255,0.45);
+        line-height: 1.6;
+        flex: 1;
+        margin-bottom: 18px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Price */
+    .car-price-row {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        padding-top: 14px;
+        border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .car-price {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 30px;
+        color: var(--orange);
+        letter-spacing: 1px;
+        line-height: 1;
+    }
+
+    .car-price small {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 12px;
+        color: rgba(255,255,255,0.35);
+        font-weight: 600;
+        display: block;
+        letter-spacing: 2px;
+    }
+
+    .car-transmission {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: rgba(255,255,255,0.35);
+        text-transform: uppercase;
+        text-align: right;
+    }
+
+    /* Buttons */
+    .car-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .btn-cart {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 12px 8px;
+        background: var(--orange);
+        color: var(--white);
+        border: none;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        cursor: pointer;
+        border-radius: 2px;
+        clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+        transition: all 0.25s ease;
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-cart::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+        transform: translateX(-100%);
+        transition: transform 0.4s ease;
+    }
+
+    .btn-cart:hover::before { transform: translateX(100%); }
+    .btn-cart:hover { background: var(--orange-light); box-shadow: 0 0 20px var(--orange-glow); }
+
+    .btn-details {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 12px 8px;
+        background: transparent;
+        color: var(--white);
+        border: 1px solid rgba(255,255,255,0.15);
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        cursor: pointer;
+        border-radius: 2px;
+        transition: all 0.25s ease;
+        text-decoration: none;
+    }
+
+    .btn-details:hover {
+        border-color: var(--white);
+        background: rgba(255,255,255,0.05);
+    }
+
+    /* ===== LIST VIEW ===== */
+   .cars-grid.view-list .car-card {
+    flex-direction: row;
+    min-height: 200px;
+    }
+
+    .cars-grid.view-list .car-image {
+    width: 280px;
+    min-height: 200px;
+    flex-shrink: 0;
+     }
+
+    .cars-grid.view-list .car-body {
+        padding: 18px 24px;
+    }
+
+    .cars-grid.view-list .car-desc {
+        -webkit-line-clamp: 2;
+    }
+
+    .cars-grid.view-list .car-actions {
+    grid-template-columns: 1fr 1fr;
+    }
+
+    /* ===== NO RESULTS ===== */
+    .no-results {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 80px 20px;
+    }
+
+    .no-results-icon {
+        font-size: 60px;
+        margin-bottom: 20px;
+        opacity: 0.3;
+    }
+
+    .no-results h3 {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 32px;
+        color: rgba(255,255,255,0.3);
+        letter-spacing: 3px;
+        margin-bottom: 10px;
+    }
+
+    .no-results p {
+        color: rgba(255,255,255,0.2);
+        font-size: 14px;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1100px) {
+        .catalog-layout { grid-template-columns: 240px 1fr; padding: 30px; }
+        .cars-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+        .catalog-layout { grid-template-columns: 1fr; padding: 20px; }
+        .sidebar { position: static; padding-right: 0; }
+        .cars-grid { grid-template-columns: 1fr; }
+        .cars-grid.view-list .car-card { flex-direction: column; height: auto; }
+        .cars-grid.view-list .car-image { width: 100%; height: 200px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- HEADER -->
+<div class="catalog-header">
+    <div class="catalog-header-inner">
+        <div>
+            <div class="catalog-tag">Notre Flotte</div>
+            <h1 class="catalog-title">Tous nos <span>Véhicules</span></h1>
+        </div>
+        <div class="catalog-count">
+            <span id="visible-count">{{ voitures|length }}</span>
+            <small>Véhicules disponibles</small>
+        </div>
+    </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="catalog-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <!-- Search -->
+        <div class="filter-block">
+            <div class="filter-title">🔍 Recherche</div>
+            <input type="text" class="search-input" id="searchInput" placeholder="Nom, marque...">
+        </div>
+
+        <!-- Categories -->
+        <div class="filter-block">
+            <div class="filter-title">◈ Catégorie</div>
+            <div class="cat-filter">
+                <div class="cat-pill active" data-cat="all" onclick="filterCategory(this, 'all')">
+                    Toutes les catégories
+                    <span class="cat-num">{{ voitures|length }}</span>
+                </div>
+                {% for cat in categories %}
+                <div class="cat-pill" data-cat="{{ cat.id }}" onclick="filterCategory(this, '{{ cat.id }}')">
+                    {{ cat.nom }}
+                    <span class="cat-num">{{ cat.voitures.count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Price -->
+        <div class="filter-block">
+            <div class="filter-title">💰 Prix / Jour</div>
+            <div class="price-range">
+                <div class="price-labels">
+                    <div class="price-val">
+                        0 MAD
+                        <small>Minimum</small>
+                    </div>
+                    <div class="price-val" style="text-align:right;">
+                        <span id="maxPriceDisplay">{{ max_price }}</span> MAD
+                        <small>Maximum</small>
+                    </div>
+                </div>
+                <input type="range" class="range-slider" id="priceRange"
+                       min="0" max="{{ max_price }}" value="{{ max_price }}"
+                       oninput="filterByPrice(this.value)">
+                <div style="text-align:center; font-size:12px; color:rgba(255,255,255,0.3); letter-spacing:2px; font-weight:600; margin-top:6px;">
+                    ≤ <span id="priceRangeLabel">{{ max_price }}</span> MAD / jour
+                </div>
+            </div>
+        </div>
+
+        <!-- Sort -->
+        <div class="filter-block">
+            <div class="filter-title">⇅ Trier par</div>
+            <div class="custom-select" id="customSort">
+                <div class="custom-select-selected" onclick="toggleDropdown()">
+                    <span id="selectedLabel">Par défaut</span>
+                    <span class="cs-arrow">▾</span>
+                </div>
+                <div class="custom-select-options" id="sortOptions">
+                    <div class="cs-option active" onclick="selectSort(this, 'default')">Par défaut</div>
+                    <div class="cs-option" onclick="selectSort(this, 'price-asc')">Prix croissant ↑</div>
+                    <div class="cs-option" onclick="selectSort(this, 'price-desc')">Prix décroissant ↓</div>
+                    <div class="cs-option" onclick="selectSort(this, 'name-asc')">Nom A → Z</div>
+                    <div class="cs-option" onclick="selectSort(this, 'name-desc')">Nom Z → A</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reset -->
+        <button class="btn-reset" onclick="resetFilters()">✕ Réinitialiser les filtres</button>
+
+    </aside>
+
+    <!-- MAIN -->
+    <div class="catalog-main">
+
+        <!-- Toolbar -->
+        <div class="catalog-toolbar">
+            <div class="results-text">
+                <span id="result-count">{{ voitures|length }}</span> véhicule(s) trouvé(s)
+            </div>
+            <div class="view-toggle">
+                <div class="view-btn active" id="gridViewBtn" onclick="setView('grid')" title="Grille">⊞</div>
+                <div class="view-btn" id="listViewBtn" onclick="setView('list')" title="Liste">☰</div>
+            </div>
+        </div>
+
+        <!-- Cars Grid -->
+        <div class="cars-grid" id="carsGrid">
+
+            {% for voiture in voitures %}
+            <div class="car-card"
+                 data-cat="{{ voiture.category.id }}"
+                 data-price="{{ voiture.prix }}"
+                 data-name="{{ voiture.nom|lower }}"
+                 data-marque="{{ voiture.marque|lower }}">
+
+                <!-- Statut réservation -->
+                {% if voiture.id in voitures_reservees %}
+                    <div class="stock-badge reserved">🔒 Réservé</div>
+                {% elif voiture.stock > 2 %}
+                    <div class="stock-badge available">Disponible</div>
+                {% elif voiture.stock > 0 %}
+                    <div class="stock-badge low">Derniers {{ voiture.stock }}</div>
+                {% else %}
+                    <div class="stock-badge unavailable">Indisponible</div>
+                {% endif %}
+
+                <!-- Image -->
+                <div class="car-image">
+                    <!-- Image Extérieur -->
+                    {% if voiture.image_exterieur %}
+                        <img class="img-ext active-img" src="{{ voiture.image_exterieur.url }}" alt="{{ voiture.nom }} extérieur" loading="lazy">
+                    {% else %}
+                        <div class="img-ext active-img img-placeholder">
+                            <span>🚗</span>
+                            <small>Pas de photo</small>
+                        </div>
+                    {% endif %}
+                    <!-- Image Intérieur -->
+                    {% if voiture.image_interieur %}
+                        <img class="img-int" src="{{ voiture.image_interieur.url }}" alt="{{ voiture.nom }} intérieur" loading="lazy">
+                    {% else %}
+                        <div class="img-int img-placeholder">
+                            <span>🪑</span>
+                            <small>Pas de photo</small>
+                        </div>
+                    {% endif %}
+                    <div class="car-image-overlay"></div>
+                    <div class="car-category-tag">{{ voiture.category.nom }}</div>
+                    <!-- Toggle boutons -->
+                    <div class="img-toggle">
+                        <button class="img-toggle-btn active" onclick="switchImg(this, 'ext')" title="Extérieur">EXT</button>
+                        <button class="img-toggle-btn" onclick="switchImg(this, 'int')" title="Intérieur">INT</button>
+                    </div>
+                </div>
+
+                <!-- Body -->
+                <div class="car-body">
+                    <div class="car-name">{{ voiture.nom }}</div>
+                    <div class="car-meta">
+                        <span>{{ voiture.marque }}</span>
+                        <span>{{ voiture.modele }}</span>
+                        <span>{{ voiture.transmission }}</span>
+                    </div>
+                    <p class="car-desc">{{ voiture.description }}</p>
+
+                    <div class="car-price-row">
+                        <div class="car-price">
+                            {{ voiture.prix }} MAD
+                            <small>par jour</small>
+                        </div>
+                        <div class="car-transmission">{{ voiture.transmission }}</div>
+                    </div>
+
+                    <div class="car-actions">
+                        {% if voiture.id in voitures_reservees %}
+                            <button type="button" class="btn-cart btn-reserved" onclick="showReservedPopup('{{ voiture.nom }}')">
+                                🔒 Réservé
+                            </button>
+                        {% elif user.is_authenticated %}
+                            <form method="POST" action="#" style="display:contents;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-cart">
+                                    🛒 Panier
+                                </button>
+                            </form>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="btn-cart">
+                                🛒 Panier
+                            </a>
+                        {% endif %}
+                      <a href="{% url 'voiture_detail' voiture.id %}" class="btn-details">
+                         ◎ Détails
+                      </a> 
+                    </div>
+                </div>
+
+            </div>
+            {% empty %}
+            <div class="no-results">
+                <div class="no-results-icon">🚗</div>
+                <h3>Aucun véhicule</h3>
+                <p>Aucun véhicule n'est disponible pour le moment.</p>
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
+</div>
+
+<!-- POPUP RÉSERVÉ -->
+<div class="popup-overlay" id="reservedPopup" onclick="closePopup(event)">
+    <div class="popup-box">
+        <div class="popup-icon">🔒</div>
+        <div class="popup-title">Véhicule Réservé</div>
+        <div class="popup-car" id="popupCarName"></div>
+        <p class="popup-msg">
+            Ce véhicule est actuellement réservé par un autre client.<br>
+            Veuillez choisir un autre véhicule disponible.
+        </p>
+        <button class="popup-close" onclick="document.getElementById('reservedPopup').classList.remove('show')">
+            Fermer
+        </button>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let activeCategory = 'all';
+    let maxPrice = parseInt("{{ max_price|default:5000 }}");
+
+    let currentSort = 'default';
+    let searchQuery = '';
+
+    // ===== FILTER BY CATEGORY =====
+    function filterCategory(el, catId) {
+        document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+        el.classList.add('active');
+        activeCategory = catId;
+        applyFilters();
+    }
+
+    // ===== FILTER BY PRICE =====
+    function filterByPrice(val) {
+        maxPrice = parseInt(val);
+        document.getElementById('maxPriceDisplay').textContent = val;
+        document.getElementById('priceRangeLabel').textContent = val;
+        applyFilters();
+    }
+
+    // ===== SEARCH =====
+    document.getElementById('searchInput').addEventListener('input', function() {
+        searchQuery = this.value.toLowerCase().trim();
+        applyFilters();
+    });
+
+    // ===== CUSTOM DROPDOWN =====
+    function toggleDropdown() {
+        document.getElementById('customSort').classList.toggle('open');
+    }
+
+    function selectSort(el, val) {
+        document.querySelectorAll('.cs-option').forEach(o => o.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('selectedLabel').textContent = el.textContent;
+        document.getElementById('customSort').classList.remove('open');
+        currentSort = val;
+        applyFilters();
+    }
+
+    // Close dropdown on outside click
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#customSort')) {
+            document.getElementById('customSort').classList.remove('open');
+        }
+    });
+
+    // ===== SORT (kept for reset) =====
+    function sortCars(val) {
+        currentSort = val;
+        applyFilters();
+    }
+
+    // ===== APPLY ALL FILTERS =====
+    function applyFilters() {
+        const grid = document.getElementById('carsGrid');
+        const cards = Array.from(grid.querySelectorAll('.car-card'));
+
+        let visible = 0;
+        cards.forEach(card => {
+            const catMatch = activeCategory === 'all' || card.dataset.cat === activeCategory;
+            const price = parseFloat(card.dataset.price);
+            const priceMatch = price <= maxPrice;
+            const name = card.dataset.name + ' ' + card.dataset.marque;
+            const searchMatch = searchQuery === '' || name.includes(searchQuery);
+
+            if (catMatch && priceMatch && searchMatch) {
+                card.style.display = '';
+                card.style.animationDelay = (visible * 0.05) + 's';
+                visible++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Sort visible cards
+        const visibleCards = cards.filter(c => c.style.display !== 'none');
+        visibleCards.sort((a, b) => {
+            const pa = parseFloat(a.dataset.price);
+            const pb = parseFloat(b.dataset.price);
+            const na = a.dataset.name;
+            const nb = b.dataset.name;
+            if (currentSort === 'price-asc') return pa - pb;
+            if (currentSort === 'price-desc') return pb - pa;
+            if (currentSort === 'name-asc') return na.localeCompare(nb);
+            if (currentSort === 'name-desc') return nb.localeCompare(na);
+            return 0;
+        });
+        visibleCards.forEach(c => grid.appendChild(c));
+
+        // Update count
+        document.getElementById('result-count').textContent = visible;
+        document.getElementById('visible-count').textContent = visible;
+
+        // No results message
+        let noRes = grid.querySelector('.no-results-dynamic');
+        if (visible === 0) {
+            if (!noRes) {
+                noRes = document.createElement('div');
+                noRes.className = 'no-results no-results-dynamic';
+                noRes.innerHTML = '<div class="no-results-icon">🔍</div><h3>Aucun résultat</h3><p>Essayez d\'autres filtres.</p>';
+                grid.appendChild(noRes);
+            }
+        } else {
+            if (noRes) noRes.remove();
+        }
+    }
+
+    // ===== RESET FILTERS =====
+    function resetFilters() {
+        activeCategory = 'all';
+        const slider = document.getElementById('priceRange');
+        maxPrice = parseInt(slider.max);
+        slider.value = slider.max;
+        document.getElementById('maxPriceDisplay').textContent = slider.max;
+        document.getElementById('priceRangeLabel').textContent = slider.max;
+        document.getElementById('searchInput').value = '';
+        document.getElementById('selectedLabel').textContent = 'Par défaut';
+        document.querySelectorAll('.cs-option').forEach((o, i) => o.classList.toggle('active', i === 0));
+        searchQuery = '';
+        currentSort = 'default';
+        document.querySelectorAll('.cat-pill').forEach((p, i) => {
+            p.classList.toggle('active', i === 0);
+        });
+        applyFilters();
+    }
+
+    // ===== POPUP RÉSERVÉ =====
+    function showReservedPopup(nom) {
+        document.getElementById('popupCarName').textContent = nom;
+        document.getElementById('reservedPopup').classList.add('show');
+    }
+
+    function closePopup(e) {
+        if (e.target === document.getElementById('reservedPopup')) {
+            document.getElementById('reservedPopup').classList.remove('show');
+        }
+    }
+
+    // ===== IMAGE TOGGLE EXT / INT =====
+    function switchImg(btn, type) {
+        const card = btn.closest('.car-card');
+        const ext = card.querySelector('.img-ext');
+        const int = card.querySelector('.img-int');
+        const btns = card.querySelectorAll('.img-toggle-btn');
+
+        btns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        if (type === 'ext') {
+            ext.classList.add('active-img');
+            int.classList.remove('active-img');
+        } else {
+            int.classList.add('active-img');
+            ext.classList.remove('active-img');
+        }
+    }
+
+    // ===== VIEW TOGGLE =====
+    function setView(view) {
+        const grid = document.getElementById('carsGrid');
+        const gridBtn = document.getElementById('gridViewBtn');
+        const listBtn = document.getElementById('listViewBtn');
+        if (view === 'list') {
+            grid.classList.add('view-list');
+            listBtn.classList.add('active');
+            gridBtn.classList.remove('active');
+        } else {
+            grid.classList.remove('view-list');
+            gridBtn.classList.add('active');
+            listBtn.classList.remove('active');
+        }
+    }
+</script>
+{% endblock %}
