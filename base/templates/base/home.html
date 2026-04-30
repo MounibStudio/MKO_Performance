@@ -279,68 +279,316 @@
     .section-title span { color: var(--orange); }
 
     /* Category cards */
-    .categories-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 16px;
-    }
-
-    .cat-card {
-        background: var(--black-card);
-        border: 1px solid rgba(255,255,255,0.06);
-        border-radius: 4px;
-        padding: 36px 24px;
-        text-align: center;
-        text-decoration: none;
-        transition: all 0.35s ease;
+    /* ===== SHOWCASE SLIDER ===== */
+    .showcase-section {
         position: relative;
-        overflow: hidden;
-        group: true;
+        background: var(--black);
     }
 
-    .cat-card::before {
+    .showcase-wrapper {
+        position: relative;
+        height: 65vh;
+        min-height: 420px;
+        overflow: hidden;
+    }
+
+    /* Slides */
+    .showcase-slides {
+        position: absolute;
+        inset: 0;
+    }
+
+    .showcase-slide {
+        position: absolute;
+        inset: 0;
+        clip-path: inset(0 100% 0 0);
+        transition: clip-path 0s;
+        z-index: 0;
+    }
+
+    .showcase-slide.active {
+        clip-path: inset(0 0% 0 0);
+        z-index: 1;
+        transition: clip-path 1s cubic-bezier(0.77, 0, 0.175, 1);
+    }
+
+    .showcase-slide.prev-out {
+        clip-path: inset(0 0% 0 100%);
+        z-index: 2;
+        transition: clip-path 1s cubic-bezier(0.77, 0, 0.175, 1);
+    }
+
+    .slide-bg {
+        position: absolute;
+        inset: 0;
+        background-image: var(--bg);
+        background-size: cover;
+        background-position: center;
+        transform: scale(1.08);
+        transition: transform 7s ease;
+        filter: brightness(0.5) saturate(0.85);
+    }
+
+    .showcase-slide.active .slide-bg {
+        transform: scale(1);
+    }
+
+    .slide-overlay {
+        position: absolute;
+        inset: 0;
+        background:
+            linear-gradient(to right, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.3) 55%, rgba(0,0,0,0.1) 100%),
+            linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
+    }
+
+    /* Diagonal accent */
+    .showcase-slide::after {
         content: '';
         position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: var(--orange);
-        transform: scaleX(0);
-        transition: transform 0.35s ease;
+        top: 0;
+        left: 420px;
+        width: 1px;
+        height: 100%;
+        background: linear-gradient(to bottom, transparent 0%, rgba(255,85,0,0.5) 40%, rgba(255,85,0,0.5) 60%, transparent 100%);
+        transform: skewX(-4deg);
+        z-index: 2;
     }
 
-    .cat-card:hover {
-        border-color: rgba(255,85,0,0.3);
-        transform: translateY(-6px);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    /* Slide content */
+    .slide-content {
+        position: absolute;
+        top: 50%;
+        left: 70px;
+        transform: translateY(-50%);
+        z-index: 3;
+        max-width: 420px;
     }
 
-    .cat-card:hover::before { transform: scaleX(1); }
-
-    .cat-icon {
-        font-size: 42px;
-        margin-bottom: 16px;
-        display: block;
-        filter: grayscale(0.3);
-        transition: transform 0.3s ease;
+    .slide-index {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 5px;
+        color: var(--orange);
+        margin-bottom: 14px;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.6s ease 0.2s;
     }
 
-    .cat-card:hover .cat-icon { transform: scale(1.1); }
+    .showcase-slide.active .slide-index {
+        opacity: 1;
+        transform: translateY(0);
+    }
 
-    .cat-name {
+    .slide-cat {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 6px;
+        color: rgba(255,255,255,0.5);
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.6s ease 0.35s;
+    }
+
+    .showcase-slide.active .slide-cat {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .slide-name {
         font-family: 'Bebas Neue', cursive;
-        font-size: 20px;
+        font-size: clamp(56px, 7vw, 96px);
         color: var(--white);
-        letter-spacing: 2px;
-        margin-bottom: 6px;
+        letter-spacing: 3px;
+        line-height: 0.92;
+        margin-bottom: 22px;
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.7s ease 0.5s;
     }
 
-    .cat-count {
-        font-size: 12px;
+    .showcase-slide.active .slide-name {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .slide-price {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 32px;
+        color: var(--orange);
+        letter-spacing: 2px;
+        margin-bottom: 32px;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.6s ease 0.65s;
+    }
+
+    .slide-price span {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 14px;
         color: rgba(255,255,255,0.4);
-        letter-spacing: 1px;
         font-weight: 600;
+        letter-spacing: 2px;
+    }
+
+    .showcase-slide.active .slide-price {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .slide-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 34px;
+        background: var(--orange);
+        color: var(--white);
+        font-family: 'Bebas Neue', cursive;
+        font-size: 18px;
+        letter-spacing: 4px;
+        text-decoration: none;
+        clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: background 0.3s ease, box-shadow 0.3s ease, opacity 0.6s ease 0.8s, transform 0.6s ease 0.8s;
+    }
+
+    .showcase-slide.active .slide-cta {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .slide-cta:hover {
+        background: var(--orange-light);
+        box-shadow: 0 0 30px var(--orange-glow);
+    }
+
+    /* Progress bars */
+    .showcase-progress {
+        position: absolute;
+        bottom: 40px;
+        left: 70px;
+        display: flex;
+        gap: 24px;
+        z-index: 10;
+    }
+
+    .progress-item {
+        cursor: pointer;
+        min-width: 120px;
+    }
+
+    .progress-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 3px;
+        color: rgba(255,255,255,0.35);
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        transition: color 0.3s;
+    }
+
+    .progress-item.active .progress-label {
+        color: var(--white);
+    }
+
+    .progress-bar {
+        height: 2px;
+        background: rgba(255,255,255,0.12);
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: var(--orange);
+        width: 0%;
+        transition: width 0.1s linear;
+    }
+
+    .progress-item.active .progress-fill {
+        animation: fillBar 4s linear forwards;
+    }
+
+    @keyframes fillBar {
+        from { width: 0%; }
+        to   { width: 100%; }
+    }
+
+    /* Nav arrows */
+    .showcase-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        width: 52px;
+        height: 52px;
+        background: rgba(0,0,0,0.5);
+        border: 1px solid rgba(255,255,255,0.15);
+        color: var(--white);
+        font-size: 18px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        backdrop-filter: blur(6px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: monospace;
+    }
+
+    .showcase-nav:hover {
+        background: var(--orange);
+        border-color: var(--orange);
+    }
+
+    .showcase-nav.prev { left: 24px; }
+    .showcase-nav.next { right: 24px; }
+
+    /* Counter */
+    .showcase-counter {
+        position: absolute;
+        top: 50%;
+        right: 40px;
+        transform: translateY(-50%);
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    #currentSlide {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 40px;
+        color: var(--orange);
+        letter-spacing: 2px;
+        line-height: 1;
+    }
+
+    .counter-sep {
+        width: 1px;
+        height: 40px;
+        background: rgba(255,255,255,0.2);
+    }
+
+    .counter-total {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 24px;
+        color: rgba(255,255,255,0.25);
+        letter-spacing: 2px;
+        line-height: 1;
+    }
+
+    @media (max-width: 768px) {
+        .slide-content { left: 30px; max-width: 280px; }
+        .showcase-progress { left: 30px; gap: 14px; }
+        .showcase-nav.prev { left: 10px; }
+        .showcase-nav.next { right: 10px; }
+        .showcase-counter { display: none; }
     }
 
     /* ===== WHY US ===== */
@@ -453,54 +701,81 @@
     </div>
 </section>
 
-<!-- CATEGORIES -->
-<section style="padding: 100px 40px;">
-    <div class="section-header">
-        <div class="section-tag">Notre Flotte</div>
-        <h2 class="section-title">8 Catégories<br><span>Disponibles</span></h2>
+<!-- SHOWCASE SLIDER -->
+<section class="showcase-section">
+
+    <div class="showcase-wrapper">
+
+        <!-- Slides -->
+        <div class="showcase-slides" id="showcaseSlides">
+
+            <div class="showcase-slide active" style="--bg: url('/media/products/sport/nissan_gtr/exterior.webp')">
+                <div class="slide-bg"></div>
+                <div class="slide-overlay"></div>
+                <div class="slide-content">
+                    <div class="slide-index">01 / 03</div>
+                    <div class="slide-cat">Sport</div>
+                    <div class="slide-name">Nissan<br>GT-R</div>
+                    <div class="slide-price">2 500 MAD <span>/ jour</span></div>
+                    <a href="{% url 'product_list' %}" class="slide-cta">Voir le catalogue</a>
+                </div>
+            </div>
+
+            <div class="showcase-slide" style="--bg: url('/media/products/SUV/Range rover 2020/exterior.png')">
+                <div class="slide-bg"></div>
+                <div class="slide-overlay"></div>
+                <div class="slide-content">
+                    <div class="slide-index">02 / 03</div>
+                    <div class="slide-cat">SUV Premium</div>
+                    <div class="slide-name">Range<br>Rover Sport</div>
+                    <div class="slide-price">1 500 MAD <span>/ jour</span></div>
+                    <a href="{% url 'product_list' %}" class="slide-cta">Voir le catalogue</a>
+                </div>
+            </div>
+
+            <div class="showcase-slide" style="--bg: url('/media/products/Hummer Limousine Service 2011/white-hummer-strech-limo.png')">
+                <div class="slide-bg"></div>
+                <div class="slide-overlay"></div>
+                <div class="slide-content">
+                    <div class="slide-index">03 / 03</div>
+                    <div class="slide-cat">Limousine VIP</div>
+                    <div class="slide-name">Hummer<br>H2 Limo</div>
+                    <div class="slide-price">2 500 MAD <span>/ jour</span></div>
+                    <a href="{% url 'product_list' %}" class="slide-cta">Voir le catalogue</a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Progress bars -->
+        <div class="showcase-progress">
+            <div class="progress-item active" onclick="goSlide(0)">
+                <div class="progress-label">Nissan GT-R</div>
+                <div class="progress-bar"><div class="progress-fill"></div></div>
+            </div>
+            <div class="progress-item" onclick="goSlide(1)">
+                <div class="progress-label">Range Rover</div>
+                <div class="progress-bar"><div class="progress-fill"></div></div>
+            </div>
+            <div class="progress-item" onclick="goSlide(2)">
+                <div class="progress-label">Hummer Limo</div>
+                <div class="progress-bar"><div class="progress-fill"></div></div>
+            </div>
+        </div>
+
+        <!-- Nav arrows -->
+        <button class="showcase-nav prev" onclick="shiftSlide(-1)">&#8592;</button>
+        <button class="showcase-nav next" onclick="shiftSlide(1)">&#8594;</button>
+
+        <!-- Side counter -->
+        <div class="showcase-counter">
+            <span id="currentSlide">01</span>
+            <span class="counter-sep"></span>
+            <span class="counter-total">03</span>
+        </div>
+
     </div>
-    <div class="categories-grid" style="max-width:1200px; margin:0 auto;">
-        <a href="{% url 'product_list' %}" class="cat-card">
-            <span class="cat-icon">🚗</span>
-            <div class="cat-name">Berlines</div>
-            <div class="cat-count">3 véhicules</div>
-        </a>
-        <a href="{% url 'product_list' %}" class="cat-card">
-            <span class="cat-icon">🚙</span>
-            <div class="cat-name">SUV</div>
-            <div class="cat-count">5 véhicules</div>
-        </a>
-        <a href="{% url 'product_list' %}" class="cat-card">
-            <span class="cat-icon">🏎️</span>
-            <div class="cat-name">Sport</div>
-            <div class="cat-count">3 véhicules</div>
-        </a>
-        <a href="{% url 'product_list' %}" class="cat-card">
-            <span class="cat-icon">🚘</span>
-            <div class="cat-name">Coupé</div>
-            <div class="cat-count">3 véhicules</div>
-        </a>
-        <a href="{% url 'product_list' %}" class="cat-card">
-            <span class="cat-icon">🌬️</span>
-            <div class="cat-name">Convertible</div>
-            <div class="cat-count">3 véhicules</div>
-        </a>
-        <a href="{% url 'product_list' %}" class="cat-card">
-            <span class="cat-icon">⚡</span>
-            <div class="cat-name">Hot Hatch</div>
-            <div class="cat-count">5 véhicules</div>
-        </a>
-        <a href="{% url 'product_list' %}" class="cat-card">
-            <span class="cat-icon">🛻</span>
-            <div class="cat-name">Pickup</div>
-            <div class="cat-count">3 véhicules</div>
-        </a>
-        <a href="{% url 'product_list' %}" class="cat-card">
-            <span class="cat-icon">🚐</span>
-            <div class="cat-name">Limousine</div>
-            <div class="cat-count">1 véhicule</div>
-        </a>
-    </div>
+
 </section>
 
 <!-- WHY US -->
@@ -528,4 +803,63 @@
     </div>
 </section>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ===== SHOWCASE SLIDER =====
+    let current = 0;
+    let total = 3;
+    let timer;
+    let isAnimating = false;
+
+    const slides    = document.querySelectorAll('.showcase-slide');
+    const items     = document.querySelectorAll('.progress-item');
+    const counter   = document.getElementById('currentSlide');
+
+    function goSlide(n) {
+        if (isAnimating || n === current) return;
+        isAnimating = true;
+
+        const prev = current;
+        current = (n + total) % total;
+
+        // Animate out
+        slides[prev].classList.add('prev-out');
+        slides[prev].classList.remove('active');
+
+        // Animate in
+        slides[current].classList.add('active');
+
+        // Update progress
+        items[prev].classList.remove('active');
+        items[prev].querySelector('.progress-fill').style.animation = 'none';
+        items[current].classList.add('active');
+
+        // Update counter
+        counter.textContent = String(current + 1).padStart(2, '0');
+
+        setTimeout(() => {
+            slides[prev].classList.remove('prev-out');
+            isAnimating = false;
+        }, 1050);
+
+        resetTimer();
+    }
+
+    function shiftSlide(dir) { goSlide(current + dir); }
+
+    function resetTimer() {
+        clearInterval(timer);
+        timer = setInterval(() => goSlide(current + 1), 4500);
+    }
+
+    resetTimer();
+
+    // Keyboard
+    document.addEventListener('keydown', e => {
+        if (e.key === 'ArrowRight') shiftSlide(1);
+        if (e.key === 'ArrowLeft')  shiftSlide(-1);
+    });
+</script>
 {% endblock %}
