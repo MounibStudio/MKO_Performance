@@ -1,10 +1,13 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-mko-key'
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -100,6 +103,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Stripe Configuration
 SITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')
-STRIPE_SECRET_KEY = 'sk_test_51TRxCfAwTZAkOWZ20bNBRrt4ltLYxDH8360Sx1DdeKHEbYdmwsj6NByX1bSid2wW6C9XcKsApsI9THLPNN5fzk0J00DSsZCzya'
-STRIPE_PUBLISHABLE_KEY = 'pk_test_51TRxCfAwTZAkOWZ2KrnUvcenkZu1I3iBNOM9pwCrCI0RQuVy4rmWAcywtQ7OpN5sSFu3zmMRq0vfKzDAPiEetkOQ00nDRYMERA'
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
+STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', '')
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
