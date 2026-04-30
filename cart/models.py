@@ -1,4 +1,6 @@
 from django.db import models
+from datetime import date
+
 
 class Panier(models.Model):
     utilisateur = models.ForeignKey(
@@ -8,8 +10,17 @@ class Panier(models.Model):
     )
     cree_le = models.DateTimeField(auto_now_add=True)
 
+    date_debut = models.DateField(null=True, blank=True)
+    date_fin = models.DateField(null=True, blank=True)
+
     def __str__(self):
-        return f"Panier {self.id}"
+        return f"Panier {self.id} - {self.utilisateur.username}"
+
+
+def dates_conflict(d1_start, d1_end, d2_start, d2_end):
+    if d1_start is None or d1_end is None or d2_start is None or d2_end is None:
+        return False
+    return d1_start <= d2_end and d1_end >= d2_start
 
 
 class ArticlePanier(models.Model):

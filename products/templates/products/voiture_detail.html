@@ -751,6 +751,96 @@
         .thumb-row { grid-template-columns: 1fr; }
         .specs-grid { grid-template-columns: 1fr; }
     }
+    
+    /* ===== CALENDAR ===== */
+    .calendar-section {
+        background: var(--black-mid);
+        border: 1px solid rgba(255,255,255,0.06);
+        padding: 16px;
+    }
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+    #calMonthYear {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 18px;
+        color: var(--white);
+        letter-spacing: 2px;
+    }
+    .cal-nav {
+        width: 28px;
+        height: 28px;
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--white);
+        font-size: 18px;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+    .cal-nav:hover {
+        border-color: var(--orange);
+        color: var(--orange);
+    }
+    .calendar-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+        margin-bottom: 4px;
+    }
+    .calendar-weekdays span {
+        text-align: center;
+        font-size: 10px;
+        font-weight: 700;
+        color: rgba(255,255,255,0.4);
+        letter-spacing: 1px;
+    }
+    .calendar-days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+    }
+    .cal-day {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.06);
+        color: rgba(255,255,255,0.6);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+    .cal-day:hover:not(.disabled) {
+        background: rgba(255,85,0,0.15);
+        border-color: var(--orange);
+        color: var(--orange);
+    }
+    .cal-day.today {
+        border-color: var(--orange);
+    }
+    .cal-day.selected {
+        background: var(--orange);
+        border-color: var(--orange);
+        color: var(--white);
+    }
+    .cal-day.in-range {
+        background: rgba(255,85,0,0.2);
+        border-color: var(--orange);
+    }
+    .cal-day.disabled {
+        background: rgba(255,255,255,0.02);
+        color: rgba(255,255,255,0.15);
+        cursor: not-allowed;
+    }
+    .cal-day.empty {
+        background: transparent;
+        border: none;
+    }
 </style>
 {% endblock %}
 
@@ -911,14 +1001,36 @@
         </div>
 
         <div class="panel-actions">
-            {% if est_reservee %}
-                <button class="btn-primary-action unavailable" onclick="document.getElementById('reservedPopup').classList.add('show')">
-                    Véhicule Réservé
-                </button>
-            {% elif user.is_authenticated %}
-                <form method="POST" action="#" style="display:contents;">
+            {% if user.is_authenticated %}
+                <form method="POST" action="{% url 'cart:ajouter_au_panier' voiture.id %}" id="addToCartForm">
                     {% csrf_token %}
-                    <button type="submit" class="btn-primary-action">
+                    
+                    <!-- Calendrier -->
+                    <div class="calendar-section" style="margin-bottom: 16px;">
+                        <div class="calendar-header">
+                            <button type="button" class="cal-nav" onclick="changeMonth(-1)">‹</button>
+                            <span id="calMonthYear"></span>
+                            <button type="button" class="cal-nav" onclick="changeMonth(1)">›</button>
+                        </div>
+                        <div class="calendar-weekdays">
+                            <span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span>
+                        </div>
+                        <div class="calendar-days" id="calendarDays"></div>
+                        
+                        <input type="hidden" name="date_debut" id="date_debut" required>
+                        <input type="hidden" name="date_fin" id="date_fin" required>
+                    </div>
+                    
+                    <!-- Selected dates display -->
+                    <div class="selected-dates" style="margin-top: 12px; padding: 12px; background: rgba(255,85,0,0.1); border: 1px solid rgba(255,85,0,0.3); border-radius: 4px; display: none;">
+                        <span style="color: var(--orange); font-size: 13px; font-weight: 600;">
+                            📅 <span id="displayDebut"></span> — <span id="displayFin"></span>
+                        </span>
+                    </div>
+                    
+                    <p id="dateError" style="color:#E83333;font-size:12px;margin-top:8px;display:none;"></p>
+                    
+                    <button type="submit" class="btn-primary-action" onclick="return validateDates()">
                         Ajouter au Panier
                     </button>
                 </form>
@@ -982,6 +1094,126 @@
 
 {% block extra_js %}
 <script>
+    const today = "{{ today }}";
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+    let selectedStart = null;
+    let selectedEnd = null;
+    let blockedDates = {{ blocked_dates|safe }};
+    
+    function formatDate(date) {
+        return date.toISOString().split('T')[0];
+    }
+    
+    function formatDisplayDate(dateStr) {
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('fr-FR', {day: 'numeric', month: 'short', year: 'numeric'});
+    }
+    
+    function isBlocked(dateStr) {
+        return blockedDates.includes(dateStr);
+    }
+    
+    function renderCalendar() {
+        const container = document.getElementById('calendarDays');
+        const monthYear = document.getElementById('calMonthYear');
+        container.innerHTML = '';
+        
+        const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                          'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+        monthYear.textContent = monthNames[currentMonth] + ' ' + currentYear;
+        
+        let firstDay = new Date(currentYear, currentMonth, 1).getDay();
+        let daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        
+        if (firstDay === 0) firstDay = 7;
+        firstDay--;
+        
+        for (let i = 0; i < firstDay; i++) {
+            const div = document.createElement('div');
+            div.className = 'cal-day empty';
+            container.appendChild(div);
+        }
+        
+        for (let day = 1; day <= daysInMonth; day++) {
+            const date = new Date(currentYear, currentMonth, day);
+            const dateStr = formatDate(date);
+            const isToday = dateStr === today;
+            const isPast = dateStr < today;
+            const blocked = isBlocked(dateStr);
+            const isSelected = dateStr === selectedStart || dateStr === selectedEnd;
+            const inRange = selectedStart && selectedEnd && dateStr > selectedStart && dateStr < selectedEnd;
+            
+            const div = document.createElement('div');
+            div.className = 'cal-day';
+            div.textContent = day;
+            
+            if (isPast || blocked) {
+                div.classList.add('disabled');
+            } else if (isSelected) {
+                div.classList.add('selected');
+            } else if (inRange) {
+                div.classList.add('in-range');
+            } else if (isToday) {
+                div.classList.add('today');
+            }
+            
+            if (!isPast && !blocked) {
+                div.onclick = () => selectDate(dateStr);
+            }
+            
+            container.appendChild(div);
+        }
+    }
+    
+    function selectDate(dateStr) {
+        if (!selectedStart || (selectedStart && selectedEnd)) {
+            selectedStart = dateStr;
+            selectedEnd = null;
+        } else if (dateStr < selectedStart) {
+            selectedStart = dateStr;
+        } else {
+            selectedEnd = dateStr;
+        }
+        
+        document.getElementById('date_debut').value = selectedStart || '';
+        document.getElementById('date_fin').value = selectedEnd || '';
+        
+        const display = document.querySelector('.selected-dates');
+        if (selectedStart) {
+            display.style.display = 'block';
+            document.getElementById('displayDebut').textContent = formatDisplayDate(selectedStart);
+            if (selectedEnd) {
+                document.getElementById('displayFin').textContent = formatDisplayDate(selectedEnd);
+            } else {
+                document.getElementById('displayFin').textContent = '...';
+            }
+        }
+        
+        renderCalendar();
+    }
+    
+    function changeMonth(delta) {
+        currentMonth += delta;
+        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+        if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+        renderCalendar();
+    }
+    
+    function validateDates() {
+        const error = document.getElementById('dateError');
+        if (!selectedStart || !selectedEnd) {
+            error.textContent = "Veuillez sélectionner les dates de début et fin";
+            error.style.display = 'block';
+            return false;
+        }
+        error.style.display = 'none';
+        return true;
+    }
+    
+    // Initialize
+    renderCalendar();
+    
     function closePopup(e) {
         if (e.target === document.getElementById('reservedPopup')) {
             document.getElementById('reservedPopup').classList.remove('show');

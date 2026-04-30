@@ -1,0 +1,177 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Confirmation — MKO Performance{% endblock %}
+
+{% block extra_css %}
+<style>
+    .confirmation-page {
+        padding: 80px 40px 100px;
+        max-width: 700px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .success-icon {
+        font-size: 80px;
+        margin-bottom: 24px;
+    }
+
+    .confirmation-title {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 42px;
+        color: var(--white);
+        letter-spacing: 3px;
+        margin-bottom: 12px;
+    }
+
+    .confirmation-subtitle {
+        color: rgba(255,255,255,0.5);
+        font-size: 16px;
+        margin-bottom: 40px;
+    }
+
+    .commande-card {
+        background: var(--black-card);
+        border: 1px solid rgba(255,255,255,0.06);
+        padding: 30px;
+        text-align: left;
+        margin-bottom: 30px;
+    }
+
+    .commande-id {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 28px;
+        color: var(--orange);
+        letter-spacing: 2px;
+    }
+
+    .commande-details {
+        margin-top: 20px;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        color: rgba(255,255,255,0.5);
+        font-size: 14px;
+    }
+
+    .detail-value {
+        color: var(--white);
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .vehicle-list {
+        margin-top: 20px;
+    }
+
+    .vehicle-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .vehicle-item:last-child {
+        border-bottom: none;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 2px solid var(--orange);
+    }
+
+    .total-label {
+        font-weight: 700;
+        font-size: 16px;
+    }
+
+    .total-value {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 24px;
+        color: var(--orange);
+    }
+
+    .btn-home {
+        display: inline-block;
+        padding: 16px 40px;
+        background: var(--orange);
+        color: var(--white);
+        text-decoration: none;
+        font-family: 'Bebas Neue', cursive;
+        font-size: 20px;
+        letter-spacing: 3px;
+        clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+        transition: all 0.25s;
+    }
+
+    .btn-home:hover {
+        background: var(--orange-light);
+        box-shadow: 0 0 30px var(--orange-glow);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="confirmation-page">
+    <div class="success-icon">✅</div>
+    <h1 class="confirmation-title">Merci!</h1>
+    <p class="confirmation-subtitle">Votre réservation a été confirmée.</p>
+
+    <div class="commande-card">
+        <div class="commande-id">Réservation #{{ commande.id }}</div>
+        
+        <div class="commande-details">
+            <div class="detail-row">
+                <span class="detail-label">Date</span>
+                <span class="detail-value">{{ commande.cree_le|date:"d M Y à H:i" }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Mode paiement</span>
+                <span class="detail-value">{{ commande.get_paiement_display|default:commande.paiement|upper }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Statut</span>
+                <span class="detail-value" style="color: var(--orange);">{{ commande.get_statut_display }}</span>
+            </div>
+        </div>
+
+        <div class="vehicle-list">
+            {% for article in articles %}
+            <div class="vehicle-item">
+                <span class="detail-value">{{ article.voiture.nom }}</span>
+                <span class="detail-value">{{ article.prix }} MAD × {{ article.quantite }}</span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="total-row">
+            <span class="total-label">Total</span>
+            <span class="total-value">{{ commande.total }} MAD</span>
+        </div>
+    </div>
+
+    <p style="color: rgba(255,255,255,0.5); margin-bottom: 30px;">
+        Un email de confirmation a été envoyé à votre adresse email.<br>
+        Notre équipe vous contactera sous peu pour finaliser.
+    </p>
+
+    <a href="{% url 'home' %}" class="btn-home">Retour à l'accueil</a>
+</div>
+
+{% endblock %}

@@ -11,9 +11,9 @@ class Commande(models.Model):
     total = models.DecimalField(max_digits=10, decimal_places=2)
     statut = models.CharField(max_length=50)
     cree_le = models.DateTimeField(auto_now_add=True)
-    adresse = models.TextField()
-
-    
+    remarque = models.TextField(blank=True, default='')
+    paiement = models.CharField(max_length=20, blank=True, default='')
+    transaction_id = models.CharField(max_length=50, blank=True, default='')
 
     def __str__(self):
         return f"Commande {self.id}"

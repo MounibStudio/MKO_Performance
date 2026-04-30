@@ -1033,13 +1033,11 @@
             <div class="car-card"
                  data-cat="{{ voiture.category.id }}"
                  data-price="{{ voiture.prix }}"
-                 data-name="{{ voiture.nom|lower }}"
-                 data-marque="{{ voiture.marque|lower }}">
+data-name="{{ voiture.nom|lower }}"
+                  data-marque="{{ voiture.marque|lower }}">
 
                 <!-- Statut réservation -->
-                {% if voiture.id in voitures_reservees %}
-                    <div class="stock-badge reserved">🔒 Réservé</div>
-                {% elif voiture.stock > 2 %}
+                {% if voiture.stock > 2 %}
                     <div class="stock-badge available">Disponible</div>
                 {% elif voiture.stock > 0 %}
                     <div class="stock-badge low">Derniers {{ voiture.stock }}</div>
@@ -1094,13 +1092,9 @@
                         <div class="car-transmission">{{ voiture.transmission }}</div>
                     </div>
 
-                    <div class="car-actions">
-                        {% if voiture.id in voitures_reservees %}
-                            <button type="button" class="btn-cart btn-reserved" onclick="showReservedPopup('{{ voiture.nom }}')">
-                                🔒 Réservé
-                            </button>
-                        {% elif user.is_authenticated %}
-                            <form method="POST" action="#" style="display:contents;">
+<div class="car-actions">
+                        {% if user.is_authenticated %}
+                            <form method="POST" action="{% url 'cart:ajouter_au_panier' voiture.id %}">
                                 {% csrf_token %}
                                 <button type="submit" class="btn-cart">
                                     🛒 Panier
@@ -1112,7 +1106,7 @@
                             </a>
                         {% endif %}
                       <a href="{% url 'voiture_detail' voiture.id %}" class="btn-details">
-                         ◎ Détails
+                           ◎ Détails
                       </a> 
                     </div>
                 </div>

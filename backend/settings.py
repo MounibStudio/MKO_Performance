@@ -46,6 +46,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'cart.context_processors.panier_processor',
             ],
         },
     },
@@ -96,3 +97,9 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Stripe Configuration
+SITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')
+STRIPE_SECRET_KEY = 'sk_test_51TRxCfAwTZAkOWZ20bNBRrt4ltLYxDH8360Sx1DdeKHEbYdmwsj6NByX1bSid2wW6C9XcKsApsI9THLPNN5fzk0J00DSsZCzya'
+STRIPE_PUBLISHABLE_KEY = 'pk_test_51TRxCfAwTZAkOWZ2KrnUvcenkZu1I3iBNOM9pwCrCI0RQuVy4rmWAcywtQ7OpN5sSFu3zmMRq0vfKzDAPiEetkOQ00nDRYMERA'
+STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')

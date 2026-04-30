@@ -1,0 +1,583 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Réservation — MKO Performance{% endblock %}
+
+{% block extra_css %}
+<style>
+    .checkout-page {
+        padding: 50px 40px 100px;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .checkout-title {
+        font-family: 'Bebas Neue', cursive;
+        font-size: clamp(36px, 5vw, 56px);
+        color: var(--white);
+        letter-spacing: 3px;
+        margin-bottom: 10px;
+    }
+
+    .checkout-subtitle {
+        color: rgba(255,255,255,0.5);
+        margin-bottom: 40px;
+    }
+
+    .checkout-grid {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 40px;
+    }
+
+    .section {
+        background: var(--black-card);
+        border: 1px solid rgba(255,255,255,0.06);
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+
+    .section-title {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 20px;
+        color: var(--orange);
+        letter-spacing: 2px;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .info-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .info-field label {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: rgba(255,255,255,0.4);
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+
+    .info-field .value {
+        font-size: 15px;
+        color: var(--white);
+        font-weight: 600;
+    }
+
+    .dates-display {
+        background: rgba(255,85,0,0.1);
+        border: 1px solid rgba(255,85,0,0.3);
+        padding: 16px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+
+    .dates-display .dates-label {
+        font-size: 11px;
+        color: var(--orange);
+        font-weight: 700;
+        letter-spacing: 2px;
+    }
+
+    .dates-display .dates-value {
+        font-size: 18px;
+        color: var(--white);
+        font-weight: 600;
+        margin-top: 6px;
+    }
+
+    .vehicle-item {
+        display: flex;
+        gap: 16px;
+        padding: 16px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .vehicle-item:last-child {
+        border-bottom: none;
+    }
+
+    .vehicle-img {
+        width: 100px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+    .vehicle-info {
+        flex: 1;
+    }
+
+    .vehicle-name {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 18px;
+        color: var(--white);
+        letter-spacing: 1px;
+    }
+
+    .vehicle-price {
+        font-size: 14px;
+        color: var(--orange);
+        font-weight: 600;
+    }
+
+    .paiement-options {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .paiement-option {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 20px;
+        background: rgba(255,255,255,0.04);
+        border: 2px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.25s;
+    }
+
+    .paiement-option:hover {
+        border-color: rgba(255,85,0,0.4);
+    }
+
+    .paiement-option.selected {
+        border-color: var(--orange);
+        background: rgba(255,85,0,0.1);
+    }
+
+    .paiement-option input {
+        display: none;
+    }
+
+    .paiement-icon {
+        font-size: 32px;
+    }
+
+    .paiement-label {
+        flex: 1;
+    }
+
+    .paiement-label .title {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 18px;
+        color: var(--white);
+        letter-spacing: 2px;
+    }
+
+    .paiement-label .desc {
+        font-size: 13px;
+        color: rgba(255,255,255,0.5);
+    }
+
+    .carte-form {
+        display: none;
+        margin-top: 20px;
+        padding: 20px;
+        background: rgba(255,255,255,0.04);
+        border-radius: 8px;
+    }
+
+    .carte-form.show {
+        display: block;
+    }
+
+    .carte-form input {
+        width: 100%;
+        padding: 14px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 4px;
+        color: var(--white);
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 15px;
+        margin-bottom: 12px;
+    }
+
+    .carte-form input::placeholder {
+        color: rgba(255,255,255,0.3);
+    }
+
+    .carte-form input:focus {
+        outline: none;
+        border-color: var(--orange);
+    }
+
+    .carte-form .row {
+        display: grid;
+        grid-template-columns: 1fr 100px;
+        gap: 12px;
+    }
+
+    .carte-form label {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: rgba(255,255,255,0.4);
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+
+    .remarque textarea {
+        width: 100%;
+        padding: 14px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 4px;
+        color: var(--white);
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 14px;
+        min-height: 80px;
+        resize: vertical;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 18px;
+        background: var(--orange);
+        border: none;
+        color: var(--white);
+        font-family: 'Bebas Neue', cursive;
+        font-size: 22px;
+        letter-spacing: 4px;
+        cursor: pointer;
+        clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+        transition: all 0.25s;
+    }
+
+    .btn-submit:hover {
+        background: var(--orange-light);
+        box-shadow: 0 0 30px var(--orange-glow);
+    }
+
+    .summary-card {
+        background: var(--black-card);
+        border: 2px solid var(--orange);
+        padding: 24px;
+        position: sticky;
+        top: 90px;
+    }
+
+    .summary-title {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 22px;
+        color: var(--white);
+        letter-spacing: 2px;
+        margin-bottom: 20px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-size: 14px;
+    }
+
+    .summary-row .label {
+        color: rgba(255,255,255,0.5);
+    }
+
+    .summary-row .value {
+        font-weight: 600;
+        color: var(--white);
+    }
+
+    .summary-total {
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .summary-total .label {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--white);
+    }
+
+    .summary-total .value {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 28px;
+        color: var(--orange);
+    }
+
+    @media (max-width: 800px) {
+        .checkout-grid {
+            grid-template-columns: 1fr;
+        }
+        .checkout-page {
+            padding: 30px 20px 60px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="checkout-page">
+    <h1 class="checkout-title">Finaliser la Réservation</h1>
+    <p class="checkout-subtitle">Vérifiez vos informations et procédez au paiement</p>
+
+    <form method="POST" action="{% url 'cart:passer_commande' %}" id="checkoutForm">
+        {% csrf_token %}
+        
+        <div class="checkout-grid">
+            <div>
+                <!-- Informations client -->
+                <div class="section">
+                    <h2 class="section-title">👤 Informations Client</h2>
+                    <div class="info-row">
+                        <div class="info-field">
+                            <label>Nom</label>
+                            <div class="value">{{ user.last_name|default:user.username }}</div>
+                        </div>
+                        <div class="info-field">
+                            <label>Prénom</label>
+                            <div class="value">{{ user.first_name|default:"—" }}</div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-field">
+                            <label>Email</label>
+                            <div class="value">{{ user.email }}</div>
+                        </div>
+                        <div class="info-field">
+                            <label>Téléphone</label>
+                            <div class="value">{{ user.telephone|default:"—" }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dates -->
+                <div class="section">
+                    <h2 class="section-title">📅 Période de Location</h2>
+                    <div class="dates-display">
+                        <div class="dates-label">Du {{ panier.date_debut|date:"d M yyyy" }} au {{ panier.date_fin|date:"d M yyyy" }}</div>
+                        <div class="dates-value">{{ total_jours }} jour(s) de location</div>
+                    </div>
+                </div>
+
+                <!-- Véhicules -->
+                <div class="section">
+                    <h2 class="section-title">🚗 Véhicules Réservés</h2>
+                    {% for article in articles %}
+                    <div class="vehicle-item">
+                        {% if article.voiture.image_exterieur %}
+                            <img src="{{ article.voiture.image_exterieur.url }}" class="vehicle-img" alt="{{ article.voiture.nom }}">
+                        {% else %}
+                            <div class="vehicle-img" style="background:#111;display:flex;align-items:center;justify-content:center;">🚗</div>
+                        {% endif %}
+                        <div class="vehicle-info">
+                            <div class="vehicle-name">{{ article.voiture.nom }}</div>
+                            <div class="vehicle-price">{{ article.voiture.prix }} MAD / jour × {{ article.quantite }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Mode de paiement -->
+                <div class="section">
+                    <h2 class="section-title">💳 Mode de Paiement</h2>
+                    <div class="paiement-options">
+                        <label class="paiement-option selected" onclick="selectPaiement('cash')">
+                            <input type="radio" name="paiement" value="cash" {% if not stripe_configure %}checked{% endif %}>
+                            <span class="paiement-icon">💵</span>
+                            <div class="paiement-label">
+                                <div class="title">Espèces</div>
+                                <div class="desc">Paiement lors du retrait à l'agence</div>
+                            </div>
+                        </label>
+                        
+                        {% if stripe_configure %}
+                        <label class="paiement-option" onclick="selectPaiement('carte')">
+                            <input type="radio" name="paiement" value="carte">
+                            <span class="paiement-icon">💳</span>
+                            <div class="paiement-label">
+                                <div class="title">Carte Bancaire</div>
+                                <div class="desc">Paiement sécurisé Stripe</div>
+                            </div>
+                        </label>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Stripe Elements -->
+                    {% if stripe_configure %}
+                    <div class="carte-form" id="carteForm">
+                        <div id="card-element"></div>
+                        <div id="card-errors" style="color: #E83333; font-size: 12px; margin-top: 8px;"></div>
+                    </div>
+                    {% else %}
+                    <div class="carte-form" id="carteForm" style="display: none;">
+                        <p style="color: rgba(255,255,255,0.5); font-size: 13px;">Stripe non configuré. Veuillez choisir paiement en espèces.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Remarque -->
+                <div class="section">
+                    <h2 class="section-title">📝 Remarque (optionnel)</h2>
+                    <textarea name="remarque" class="remarque" placeholder="Une remarque pour l'agence..."></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit">Confirmer la Réservation →</button>
+            </div>
+
+            <!-- Résumé -->
+            <div>
+                <div class="summary-card">
+                    <h3 class="summary-title">Récapitulatif</h3>
+                    <div class="summary-row">
+                        <span class="label">Sous-total</span>
+                        <span class="value">{{ total }} MAD</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="label"> jours</span>
+                        <span class="value">{{ total_jours }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="label">TVA (20%)</span>
+                        <span class="value">Inclus</span>
+                    </div>
+                    <div class="summary-total">
+                        <span class="label">Total</span>
+                        <span class="value">{{ total }} MAD</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+{% if stripe_configure %}
+<script src="https://js.stripe.com/v3/"></script>
+{% endif %}
+<script>
+    let stripe = null;
+    let cardElement = null;
+    
+    {% if stripe_configure %}
+    // Initialiser Stripe
+    stripe = Stripe('{{ stripe_publishable_key }}');
+    const elements = stripe.elements();
+    cardElement = elements.create('card', {
+        style: {
+            base: {
+                color: '#ffffff',
+                fontFamily: 'Rajdhani, sans-serif',
+                fontSize: '15px',
+                '::placeholder': {
+                    color: 'rgba(255,255,255,0.3)'
+                }
+            },
+            invalid: {
+                color: '#E83333'
+            }
+        }
+    });
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const carteForm = document.getElementById('carteForm');
+        if (carteForm) {
+            cardElement.mount('#card-element');
+            
+            cardElement.on('change', function(event) {
+                const displayError = document.getElementById('card-errors');
+                if (event.error) {
+                    displayError.textContent = event.error.message;
+                } else {
+                    displayError.textContent = '';
+                }
+            });
+        }
+    });
+    {% endif %}
+    
+    function selectPaiement(mode) {
+        document.querySelectorAll('.paiement-option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+        event.currentTarget.classList.add('selected');
+        event.currentTarget.querySelector('input').checked = true;
+        
+        const carteForm = document.getElementById('carteForm');
+        if (mode === 'carte') {
+            carteForm.classList.add('show');
+        } else {
+            carteForm.classList.remove('show');
+        }
+    }
+    
+    // Soumission du formulaire
+    document.getElementById('checkoutForm').addEventListener('submit', async function(event) {
+        const paiement = document.querySelector('input[name="paiement"]:checked').value;
+        
+        if (paiement === 'carte' && stripe && cardElement) {
+            event.preventDefault();
+            
+            const submitBtn = event.target.querySelector('.btn-submit');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Traitement en cours...';
+            
+            // Créer PaymentIntent côté serveur
+            try {
+                const formData = new FormData();
+                formData.append('montant', '{{ total }}');
+                formData.append('commande_id', '0');
+                
+                const response = await fetch('/panier/initialiser-paiement/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                console.log('PaymentIntent response:', data);
+                
+                if (!response.ok || !data.success) {
+                    document.getElementById('card-errors').textContent = data.message || 'Erreur lors de la création du paiement';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Confirmer la Réservation →';
+                    return;
+                }
+                
+                if (data.client_secret) {
+                    const {error, paymentIntent} = await stripe.confirmCardPayment(data.client_secret, {
+                        payment_method: {
+                            card: cardElement
+                        }
+                    });
+                    
+                    if (error) {
+                        document.getElementById('card-errors').textContent = error.message;
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Confirmer la Réservation →';
+                    } else if (paymentIntent.status === 'succeeded') {
+                        // Soumettre le formulaire maintenant
+                        event.target.submit();
+                    }
+                }
+            } catch (err) {
+                console.error('Erreur:', err);
+                document.getElementById('card-errors').textContent = 'Erreur: ' + err.message;
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Confirmer la Réservation →';
+            }
+        }
+    });
+</script>
+{% endblock %}

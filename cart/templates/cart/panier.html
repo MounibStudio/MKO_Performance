@@ -1,0 +1,623 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Mon Panier — MKO Performance{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cart-page {
+        min-height: 70vh;
+        padding: 50px 40px 100px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .cart-header {
+        position: relative;
+        margin-bottom: 50px;
+    }
+
+    .cart-title {
+        font-family: 'Bebas Neue', cursive;
+        font-size: clamp(36px, 5vw, 56px);
+        color: var(--white);
+        letter-spacing: 3px;
+        line-height: 1.1;
+    }
+
+    .cart-title span { color: var(--orange); }
+
+    .cart-subtitle {
+        font-size: 13px;
+        color: rgba(255,255,255,0.4);
+        margin-top: 10px;
+        letter-spacing: 1px;
+    }
+
+    .cart-empty {
+        text-align: center;
+        padding: 80px 20px;
+    }
+
+    .cart-empty-icon {
+        font-size: 80px;
+        margin-bottom: 24px;
+        opacity: 0.2;
+    }
+
+    .cart-empty h2 {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 32px;
+        color: rgba(255,255,255,0.3);
+        letter-spacing: 3px;
+        margin-bottom: 12px;
+    }
+
+    .cart-empty p {
+        color: rgba(255,255,255,0.25);
+        font-size: 14px;
+        margin-bottom: 30px;
+    }
+
+    .btn-continue {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 32px;
+        background: var(--orange);
+        color: var(--white);
+        text-decoration: none;
+        font-family: 'Bebas Neue', cursive;
+        font-size: 18px;
+        letter-spacing: 3px;
+        clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+        transition: all 0.25s ease;
+    }
+
+    .btn-continue:hover {
+        background: var(--orange-light);
+        box-shadow: 0 0 30px var(--orange-glow);
+    }
+
+    .cart-layout {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 40px;
+        align-items: start;
+    }
+
+    /* Dates selector */
+    .dates-selector {
+        background: var(--black-card);
+        border: 1px solid rgba(255,85,0,0.2);
+        border-left: 3px solid var(--orange);
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+
+    .dates-title {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 20px;
+        color: var(--white);
+        letter-spacing: 3px;
+        margin-bottom: 20px;
+    }
+
+    .dates-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .date-field label {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: rgba(255,255,255,0.4);
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+
+    .date-field input {
+        width: 100%;
+        padding: 12px 14px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 4px;
+        color: var(--white);
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        outline: none;
+        transition: border-color 0.25s;
+    }
+
+    .date-field input:focus {
+        border-color: var(--orange);
+    }
+
+    .date-error {
+        color: #E83333;
+        font-size: 12px;
+        margin-top: 8px;
+    }
+
+    .btn-update-dates {
+        width: 100%;
+        padding: 12px;
+        margin-top: 16px;
+        background: var(--orange);
+        border: none;
+        color: var(--white);
+        font-family: 'Bebas Neue', cursive;
+        font-size: 16px;
+        letter-spacing: 3px;
+        cursor: pointer;
+        clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+        transition: all 0.25s;
+    }
+
+    .btn-update-dates:hover {
+        background: var(--orange-light);
+    }
+
+    .cart-items {
+        border: 1px solid rgba(255,255,255,0.06);
+        background: var(--black-card);
+    }
+
+    .cart-item {
+        display: grid;
+        grid-template-columns: 140px 1fr auto auto;
+        gap: 24px;
+        align-items: center;
+        padding: 24px;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        animation: fadeIn 0.3s ease;
+    }
+
+    .cart-item:last-child { border-bottom: none; }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .cart-item-image {
+        width: 140px;
+        height: 100px;
+        overflow: hidden;
+        border-radius: 4px;
+    }
+
+    .cart-item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: brightness(0.85);
+        transition: filter 0.25s;
+    }
+
+    .cart-item:hover .cart-item-image img {
+        filter: brightness(1);
+    }
+
+    .cart-item-info h3 {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 22px;
+        color: var(--white);
+        letter-spacing: 2px;
+        margin-bottom: 6px;
+    }
+
+    .cart-item-info .item-dates {
+        font-size: 13px;
+        color: var(--orange);
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .cart-item-info .item-meta {
+        display: flex;
+        gap: 16px;
+        font-size: 12px;
+        color: rgba(255,255,255,0.4);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .cart-item-info .item-meta span::before {
+        content: '•';
+        color: var(--orange);
+        margin-right: 16px;
+    }
+
+    .cart-item-info .item-price {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 20px;
+        color: var(--orange);
+        letter-spacing: 1px;
+        margin-top: 10px;
+    }
+
+    .cart-item-delete {
+        padding: 10px;
+        background: transparent;
+        border: none;
+        color: rgba(255,255,255,0.3);
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.2s;
+        border-radius: 4px;
+    }
+
+    .cart-item-delete:hover {
+        color: #E83333;
+        background: rgba(220,20,20,0.1);
+    }
+
+    .cart-summary {
+        background: var(--black-card);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-top: 3px solid var(--orange);
+        padding: 30px;
+        position: sticky;
+        top: 90px;
+    }
+
+    .summary-title {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 24px;
+        color: var(--white);
+        letter-spacing: 3px;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 14px;
+        font-size: 14px;
+        color: rgba(255,255,255,0.5);
+    }
+
+    .summary-row.total {
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255,255,255,0.08);
+        font-size: 16px;
+    }
+
+    .summary-row .s-label {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .summary-row .s-value {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 20px;
+        letter-spacing: 1px;
+    }
+
+    .summary-row.total .s-value {
+        font-size: 28px;
+        color: var(--orange);
+    }
+
+    .btn-checkout {
+        width: 100%;
+        padding: 16px;
+        margin-top: 24px;
+        background: var(--orange);
+        border: none;
+        color: var(--white);
+        font-family: 'Bebas Neue', cursive;
+        font-size: 20px;
+        letter-spacing: 4px;
+        cursor: pointer;
+        clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+        transition: all 0.25s ease;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-checkout:hover {
+        background: var(--orange-light);
+        box-shadow: 0 0 30px var(--orange-glow);
+    }
+
+    .btn-clear-cart {
+        width: 100%;
+        padding: 12px;
+        margin-top: 12px;
+        background: transparent;
+        border: 1px solid rgba(220,20,20,0.3);
+        color: #E83333;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        cursor: pointer;
+        transition: all 0.25s;
+        border-radius: 2px;
+    }
+
+    .btn-clear-cart:hover {
+        background: rgba(220,20,20,0.1);
+        border-color: #E83333;
+    }
+
+    .continue-shopping {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 20px;
+        color: rgba(255,255,255,0.4);
+        font-size: 13px;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .continue-shopping:hover {
+        color: var(--orange);
+    }
+
+@media (max-width: 900px) {
+        .cart-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .dates-selector {
+        background: var(--black-card);
+        border: 1px solid rgba(255,85,0,0.2);
+        border-left: 3px solid var(--orange);
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+
+    .dates-title {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 20px;
+        color: var(--white);
+        letter-spacing: 3px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="cart-page">
+    <div class="cart-header">
+        <h1 class="cart-title">Mon <span>Panier</span></h1>
+        <p class="cart-subtitle">{{ nombre_items }} véhicule(s) dans votre panier</p>
+    </div>
+
+    {% if not articles %}
+    <div class="cart-empty">
+        <div class="cart-empty-icon">🛒</div>
+        <h2>Votre panier est vide</h2>
+        <p>Découvrez notre flotte de véhicules premium</p>
+        <a href="{% url 'product_list' %}" class="btn-continue">
+            ← Parcourir le Catalogue
+        </a>
+    </div>
+    {% else %}
+    <div class="cart-layout">
+        <div>
+            <div class="dates-selector">
+                <h2 class="dates-title">📅 Dates de location</h2>
+                {% if panier.date_debut and panier.date_fin %}
+                    <p style="color: var(--orange); font-size: 18px; font-weight: 600;">
+                        Du {{ panier.date_debut|date:"d M yyyy" }} au {{ panier.date_fin|date:"d M yyyy" }}
+                        <small style="color: rgba(255,255,255,0.5); font-size: 12px;">({{ total_jours }} jour(s))</small>
+                    </p>
+                    <p style="color: rgba(255,255,255,0.4); font-size: 12px; margin-top: 12px;">
+                        Cliquez sur une voiture dans le catalogue pour changer les dates
+                    </p>
+                {% else %}
+                    <p style="color: rgba(255,255,255,0.5);">Aucune date sélectionnée</p>
+                    <a href="{% url 'product_list' %}" class="btn-continue" style="margin-top: 16px; display: inline-block;">
+                        Choisir les dates →
+                    </a>
+                {% endif %}
+            </div>
+
+            <div class="cart-items">
+                {% for article in articles %}
+                <div class="cart-item">
+                    <div class="cart-item-image">
+                        {% if article.voiture.image_exterieur %}
+                            <img src="{{ article.voiture.image_exterieur.url }}" alt="{{ article.voiture.nom }}">
+                        {% else %}
+                            <div style="display:flex;align-items:center;justify-content:center;height:100%;background:#111;color:rgba(255,255,255,0.2);">🚗</div>
+                        {% endif %}
+                    </div>
+                    <div class="cart-item-info">
+                        <h3>{{ article.voiture.nom }}</h3>
+                        {% if panier.date_debut and panier.date_fin %}
+                        <div class="item-dates">
+                            📅 {{ panier.date_debut|date:"d/m" }} - {{ panier.date_fin|date:"d/m/y" }}
+                        </div>
+                        {% endif %}
+                        <div class="item-meta">
+                            <span>{{ article.voiture.marque }}</span>
+                            <span>{{ article.voiture.modele }}</span>
+                        </div>
+                        <div class="item-price">{{ article.voiture.prix }} MAD / jour</div>
+                    </div>
+                    <form method="POST" action="{% url 'cart:supprimer_article' article.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="cart-item-delete" title="Supprimer">✕</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="cart-summary">
+            <h2 class="summary-title">Récapitulatif</h2>
+            
+            <div class="summary-row">
+                <span class="s-label">Prix / jour</span>
+                <span class="s-value">{{ panier.articles.first.voiture.prix|default:"0" }} MAD</span>
+            </div>
+            <div class="summary-row">
+                <span class="s-label">Nombre de jours</span>
+                <span class="s-value">{{ total_jours|default:"1" }}</span>
+            </div>
+            <div class="summary-row">
+                <span class="s-label">TVA (20%)</span>
+                <span class="s-value">Inclus</span>
+            </div>
+            <div class="summary-row total">
+                <span class="s-label">Total</span>
+                <span class="s-value">{{ total }} MAD</span>
+            </div>
+
+            <a href="{% url 'cart:checkout' %}" class="btn-checkout">
+                Passer la Réservation →
+            </a>
+
+            <form method="POST" action="{% url 'cart:vider_panier' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-clear-cart" onclick="return confirm('Vider le panier ?')">
+                    ✕ Vider le panier
+                </button>
+            </form>
+
+            <a href="{% url 'product_list' %}" class="continue-shopping">
+                ← Continuer mes réservations
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const today = "{{ today }}";
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+    let selectedStart = null;
+    let selectedEnd = null;
+    
+    function formatDate(date) {
+        return date.toISOString().split('T')[0];
+    }
+    
+    function formatDisplayDate(dateStr) {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('fr-FR', {day: 'numeric', month: 'short'});
+    }
+    
+    function renderCalendar() {
+        const container = document.getElementById('calendarDays');
+        const monthYear = document.getElementById('calMonthYear');
+        if (!container) return;
+        container.innerHTML = '';
+        
+        const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                          'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+        monthYear.textContent = monthNames[currentMonth] + ' ' + currentYear;
+        
+        let firstDay = new Date(currentYear, currentMonth, 1).getDay();
+        let daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        
+        if (firstDay === 0) firstDay = 7;
+        firstDay--;
+        
+        for (let i = 0; i < firstDay; i++) {
+            const div = document.createElement('div');
+            div.className = 'cal-day empty';
+            container.appendChild(div);
+        }
+        
+        for (let day = 1; day <= daysInMonth; day++) {
+            const date = new Date(currentYear, currentMonth, day);
+            const dateStr = formatDate(date);
+            const isPast = dateStr < today;
+            const isSelected = dateStr === selectedStart || dateStr === selectedEnd;
+            const inRange = selectedStart && selectedEnd && dateStr > selectedStart && dateStr < selectedEnd;
+            
+            const div = document.createElement('div');
+            div.className = 'cal-day';
+            div.textContent = day;
+            
+            if (isPast) {
+                div.classList.add('disabled');
+            } else if (isSelected) {
+                div.classList.add('selected');
+            } else if (inRange) {
+                div.classList.add('in-range');
+            }
+            
+            if (!isPast) {
+                div.onclick = () => selectDate(dateStr);
+            }
+            
+            container.appendChild(div);
+        }
+    }
+    
+    function selectDate(dateStr) {
+        if (!selectedStart || (selectedStart && selectedEnd)) {
+            selectedStart = dateStr;
+            selectedEnd = null;
+        } else if (dateStr < selectedStart) {
+            selectedStart = dateStr;
+        } else {
+            selectedEnd = dateStr;
+        }
+        
+        document.getElementById('date_debut').value = selectedStart || '';
+        document.getElementById('date_fin').value = selectedEnd || '';
+        
+        const textEl = document.getElementById('selectedDatesText');
+        if (selectedStart) {
+            let text = formatDisplayDate(selectedStart);
+            if (selectedEnd) {
+                text += ' — ' + formatDisplayDate(selectedEnd);
+            } else {
+                text += ' — ...';
+            }
+            textEl.textContent = text;
+        }
+        
+        renderCalendar();
+    }
+    
+    function validerDates() {
+        const debut = document.getElementById('date_debut').value;
+        const fin = document.getElementById('date_fin').value;
+        
+        if (!debut || !fin) {
+            alert('Veuillez sélectionner les dates de début et fin');
+            return false;
+        }
+        
+        document.getElementById('form_date_debut').value = debut;
+        document.getElementById('form_date_fin').value = fin;
+        
+        return true;
+    }
+    
+    function changeMonth(delta) {
+        currentMonth += delta;
+        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+        if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+        renderCalendar();
+    }
+    
+    document.addEventListener('DOMContentLoaded', renderCalendar);
+</script>
+{% endblock %}

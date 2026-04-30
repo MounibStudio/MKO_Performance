@@ -539,9 +539,9 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="cart-badge">
+                    <a href="{% url 'cart:panier_detail' %}" class="cart-badge">
                         <span class="nav-icon">⊡</span> Panier
-                        <span class="badge">0</span>
+                        <span class="badge">{{ nombre_items|default:"0" }}</span>
                     </a>
                 </li>
                 <li>
