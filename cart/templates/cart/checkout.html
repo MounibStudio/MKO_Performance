@@ -389,7 +389,7 @@
                 <div class="section">
                     <h2 class="section-title">💳 Mode de Paiement</h2>
                     <div class="paiement-options">
-                        <label class="paiement-option selected" onclick="selectPaiement('cash')">
+                        <label class="paiement-option selected" onclick="selectPaiement('cash', event)">
                             <input type="radio" name="paiement" value="cash" {% if not stripe_configure %}checked{% endif %}>
                             <span class="paiement-icon">💵</span>
                             <div class="paiement-label">
@@ -399,7 +399,7 @@
                         </label>
                         
                         {% if stripe_configure %}
-                        <label class="paiement-option" onclick="selectPaiement('carte')">
+                        <label class="paiement-option" onclick="selectPaiement('carte', event)">
                             <input type="radio" name="paiement" value="carte">
                             <span class="paiement-icon">💳</span>
                             <div class="paiement-label">
@@ -461,58 +461,20 @@
 {% endblock %}
 
 {% block extra_js %}
-{% if stripe_configure %}
-<script src="https://js.stripe.com/v3/"></script>
-{% endif %}
+{% if stripe_configure %}<script src="https://js.stripe.com/v3/"></script>{% endif %}
 <script>
-    let stripe = null;
-    let cardElement = null;
+    var stripe = null;
+    var cardElement = null;
     
-    {% if stripe_configure %}
-    // Initialiser Stripe
-    stripe = Stripe('{{ stripe_publishable_key }}');
-    const elements = stripe.elements();
-    cardElement = elements.create('card', {
-        style: {
-            base: {
-                color: '#ffffff',
-                fontFamily: 'Rajdhani, sans-serif',
-                fontSize: '15px',
-                '::placeholder': {
-                    color: 'rgba(255,255,255,0.3)'
-                }
-            },
-            invalid: {
-                color: '#E83333'
-            }
-        }
-    });
-    
-    document.addEventListener('DOMContentLoaded', function() {
-        const carteForm = document.getElementById('carteForm');
-        if (carteForm) {
-            cardElement.mount('#card-element');
-            
-            cardElement.on('change', function(event) {
-                const displayError = document.getElementById('card-errors');
-                if (event.error) {
-                    displayError.textContent = event.error.message;
-                } else {
-                    displayError.textContent = '';
-                }
-            });
-        }
-    });
-    {% endif %}
-    
-    function selectPaiement(mode) {
-        document.querySelectorAll('.paiement-option').forEach(opt => {
+    function selectPaiement(mode, evt) {
+        var event = evt || window.event;
+        document.querySelectorAll('.paiement-option').forEach(function(opt) {
             opt.classList.remove('selected');
         });
         event.currentTarget.classList.add('selected');
         event.currentTarget.querySelector('input').checked = true;
         
-        const carteForm = document.getElementById('carteForm');
+        var carteForm = document.getElementById('carteForm');
         if (mode === 'carte') {
             carteForm.classList.add('show');
         } else {
@@ -524,60 +486,82 @@
     document.getElementById('checkoutForm').addEventListener('submit', async function(event) {
         const paiement = document.querySelector('input[name="paiement"]:checked').value;
         
-        if (paiement === 'carte' && stripe && cardElement) {
-            event.preventDefault();
+        // Soumission AJAX pour tous les paiements
+        event.preventDefault();
+        
+        const submitBtn = event.target.querySelector('.btn-submit');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Traitement en cours...';
+        
+        const formData = new FormData(event.target);
+        
+        try {
+            const response = await fetch('/panier/passer-commande/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            });
             
-            const submitBtn = event.target.querySelector('.btn-submit');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Traitement en cours...';
+            const data = await response.json();
+            console.log('Server response:', data);
             
-            // Créer PaymentIntent côté serveur
-            try {
-                const formData = new FormData();
-                formData.append('montant', '{{ total }}');
-                formData.append('commande_id', '0');
-                
-                const response = await fetch('/panier/initialiser-paiement/', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    body: formData
-                });
-                
-                const data = await response.json();
-                console.log('PaymentIntent response:', data);
-                
-                if (!response.ok || !data.success) {
-                    document.getElementById('card-errors').textContent = data.message || 'Erreur lors de la création du paiement';
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Confirmer la Réservation →';
-                    return;
+            if (!response.ok || data.error) {
+                if (paiement === 'carte') {
+                    document.getElementById('card-errors').textContent = data.error || data.message || 'Erreur';
+                } else {
+                    alert(data.error || data.message || 'Erreur');
                 }
-                
-                if (data.client_secret) {
-                    const {error, paymentIntent} = await stripe.confirmCardPayment(data.client_secret, {
-                        payment_method: {
-                            card: cardElement
-                        }
-                    });
-                    
-                    if (error) {
-                        document.getElementById('card-errors').textContent = error.message;
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = 'Confirmer la Réservation →';
-                    } else if (paymentIntent.status === 'succeeded') {
-                        // Soumettre le formulaire maintenant
-                        event.target.submit();
-                    }
-                }
-            } catch (err) {
-                console.error('Erreur:', err);
-                document.getElementById('card-errors').textContent = 'Erreur: ' + err.message;
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Confirmer la Réservation →';
+                return;
             }
+            
+            // Si paiement par carte et client_secret, faire le paiement Stripe
+            if (paiement === 'carte' && data.client_secret && stripe && cardElement) {
+                const {error, paymentIntent} = await stripe.confirmCardPayment(data.client_secret, {
+                    payment_method: { card: cardElement }
+                });
+                
+                if (error) {
+                    document.getElementById('card-errors').textContent = error.message;
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Confirmer la Réservation →';
+                } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+                    window.location.href = '/panier/confirmation/' + data.commande_id + '/?success=true';
+                }
+            } else if (data.redirect) {
+                // Paiement cash - rediriger directement
+                window.location.href = data.redirect;
+            } else {
+                // Fallback
+                window.location.href = '/panier/confirmation/' + data.commande_id + '/';
+            }
+        } catch (err) {
+            console.error('Erreur:', err);
+            alert('Erreur: ' + err.message);
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Confirmer la Réservation →';
         }
     });
 </script>
+{% if stripe_configure %}
+<script>
+    stripe = Stripe('{{ stripe_publishable_key }}');
+    document.addEventListener('DOMContentLoaded', function() {
+        cardElement = stripe.elements().create('card', {
+            style: { base: { color: '#ffffff', fontFamily: 'Rajdhani', fontSize: '15px' }, invalid: { color: '#E83333' } }
+        });
+        var f = document.getElementById('carteForm');
+        if (f) {
+            cardElement.mount('#card-element');
+            cardElement.on('change', function(e) {
+                document.getElementById('card-errors').textContent = e.error ? e.error.message : '';
+            });
+        }
+    });
+</script>
+{% endif %}
 {% endblock %}

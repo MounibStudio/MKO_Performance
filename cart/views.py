@@ -270,23 +270,26 @@ def passer_commande(request):
                 date_fin=panier.date_fin
             )
         
-        # Créer session Stripe
-        result = creer_session_paiement(commande, articles, panier)
+        # Créer PaymentIntent et retourner le client_secret
+        result = creer_intent_paiement(total, commande.id)
         
         if 'error' in result:
             messages.error(request, result['error'])
             commande.statut = 'annulee'
             commande.save()
-            return redirect('cart:checkout')
+            return JsonResponse({'redirect': reverse('cart:checkout')})
         
-        # Vider le panier
-        panier.articles.all().delete()
-        panier.date_debut = None
-        panier.date_fin = None
-        panier.save()
+        # Sauvegarder l'ID du PaymentIntent
+        commande.transaction_id = result['id']
+        commande.save()
         
-        # Rediriger vers Stripe
-        return redirect(result.url)
+        # Retourner le client_secret pour le paiement JS
+        return JsonResponse({
+            'success': True,
+            'client_secret': result['client_secret'],
+            'commande_id': commande.id,
+            'stripe_publishable_key': settings.STRIPE_PUBLISHABLE_KEY
+        })
     
     else:
         # Paiement cash ou Stripe non configuré
@@ -315,6 +318,14 @@ def passer_commande(request):
         panier.date_debut = None
         panier.date_fin = None
         panier.save()
+        
+        # Vérifier si c'est une requête AJAX
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'commande_id': commande.id,
+                'redirect': reverse('cart:confirmation', args=[commande.id])
+            })
         
         messages.success(request, f"✅ Réservation #{commande.id} confirmée!")
         return redirect('cart:confirmation', commande_id=commande.id)
@@ -359,7 +370,23 @@ def initialiser_paiement_stripe(request):
 @login_required
 def confirmation(request, commande_id):
     """Page de confirmation"""
+    from django.conf import settings
+    import stripe
+    
     commande = get_object_or_404(Commande, id=commande_id, utilisateur=request.user)
+    
+    if request.GET.get('success') == 'true' and commande.paiement == 'carte' and settings.STRIPE_SECRET_KEY:
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        
+        if commande.transaction_id:
+            try:
+                intent = stripe.PaymentIntent.retrieve(commande.transaction_id)
+                if intent.status == 'succeeded':
+                    commande.statut = 'confirmee'
+                    commande.save()
+            except stripe.error.StripeError:
+                pass
+    
     articles = commande.articles.select_related('voiture')
     
     context = {
