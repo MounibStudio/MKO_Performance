@@ -36,6 +36,18 @@ class ArticlePanier(models.Model):
     )
 
     quantite = models.PositiveIntegerField()
+    date_debut = models.DateField(null=True, blank=True)
+    date_fin = models.DateField(null=True, blank=True)
+
+    @property
+    def jours(self):
+        if self.date_debut and self.date_fin:
+            return (self.date_fin - self.date_debut).days + 1
+        return 1
+
+    @property
+    def total(self):
+        return self.voiture.prix * self.quantite * self.jours
 
     def __str__(self):
         return f"{self.voiture.nom} x {self.quantite}"

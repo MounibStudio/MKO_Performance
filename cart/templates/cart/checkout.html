@@ -379,7 +379,18 @@
                         {% endif %}
                         <div class="vehicle-info">
                             <div class="vehicle-name">{{ article.voiture.nom }}</div>
-                            <div class="vehicle-price">{{ article.voiture.prix }} MAD / jour × {{ article.quantite }}</div>
+                            <div class="vehicle-price">
+                                {{ article.voiture.prix }} MAD / jour × {{ article.quantite }}
+                                {% if article.date_debut and article.date_fin %}
+                                × {{ article.jours }} jour(s)
+                                {% endif %}
+                                = {{ article.total }} MAD
+                            </div>
+                            {% if article.date_debut and article.date_fin %}
+                            <div style="color: var(--orange); font-size: 13px; margin-top: 4px;">
+                                📅 {{ article.date_debut|date:"d M" }} - {{ article.date_fin|date:"d M Y" }}
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                     {% endfor %}
@@ -436,14 +447,12 @@
             <div>
                 <div class="summary-card">
                     <h3 class="summary-title">Récapitulatif</h3>
+                    {% for article in articles %}
                     <div class="summary-row">
-                        <span class="label">Sous-total</span>
-                        <span class="value">{{ total }} MAD</span>
+                        <span class="label">{{ article.voiture.nom }}</span>
+                        <span class="value">{{ article.total }} MAD</span>
                     </div>
-                    <div class="summary-row">
-                        <span class="label"> jours</span>
-                        <span class="value">{{ total_jours }}</span>
-                    </div>
+                    {% endfor %}
                     <div class="summary-row">
                         <span class="label">TVA (20%)</span>
                         <span class="value">Inclus</span>

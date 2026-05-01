@@ -441,16 +441,16 @@
                     </div>
                     <div class="cart-item-info">
                         <h3>{{ article.voiture.nom }}</h3>
-                        {% if panier.date_debut and panier.date_fin %}
+                        {% if article.date_debut and article.date_fin %}
                         <div class="item-dates">
-                            📅 {{ panier.date_debut|date:"d/m" }} - {{ panier.date_fin|date:"d/m/y" }}
+                            📅 {{ article.date_debut|date:"d/m" }} - {{ article.date_fin|date:"d/m/y" }} ({{ article.jours }} jour(s))
                         </div>
                         {% endif %}
                         <div class="item-meta">
                             <span>{{ article.voiture.marque }}</span>
                             <span>{{ article.voiture.modele }}</span>
                         </div>
-                        <div class="item-price">{{ article.voiture.prix }} MAD / jour</div>
+                        <div class="item-price">{{ article.voiture.prix }} MAD / jour × {{ article.quantite }} = {{ article.total }} MAD</div>
                     </div>
                     <form method="POST" action="{% url 'cart:supprimer_article' article.id %}">
                         {% csrf_token %}
@@ -464,14 +464,13 @@
         <div class="cart-summary">
             <h2 class="summary-title">Récapitulatif</h2>
             
+            {% for article in articles %}
             <div class="summary-row">
-                <span class="s-label">Prix / jour</span>
-                <span class="s-value">{{ panier.articles.first.voiture.prix|default:"0" }} MAD</span>
+                <span class="s-label">{{ article.voiture.nom }}</span>
+                <span class="s-value">{{ article.total }} MAD</span>
             </div>
-            <div class="summary-row">
-                <span class="s-label">Nombre de jours</span>
-                <span class="s-value">{{ total_jours|default:"1" }}</span>
-            </div>
+            {% endfor %}
+            
             <div class="summary-row">
                 <span class="s-label">TVA (20%)</span>
                 <span class="s-value">Inclus</span>

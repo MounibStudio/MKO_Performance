@@ -24,13 +24,13 @@ def panier_detail(request):
     panier = get_or_create_panier(request.user)
     articles = panier.articles.select_related('voiture')
     
-    total = sum(article.voiture.prix * article.quantite for article in articles)
-    nombre_items = sum(article.quantite for article in articles)
+    total = 0
+    nombre_items = 0
     
-    total_jours = 0
-    if panier.date_debut and panier.date_fin:
-        total_jours = (panier.date_fin - panier.date_debut).days + 1
-        total = total * total_jours
+    for article in articles:
+        jours = article.jours if article.date_debut and article.date_fin else 1
+        total += article.voiture.prix * article.quantite * jours
+        nombre_items += article.quantite
     
     from datetime import date as date_module
     context = {
@@ -38,7 +38,6 @@ def panier_detail(request):
         'articles': articles,
         'total': total,
         'nombre_items': nombre_items,
-        'total_jours': total_jours,
         'today': date_module.today().isoformat(),
     }
     return render(request, 'cart/panier.html', context)
@@ -74,19 +73,20 @@ def ajouter_au_panier(request, voiture_id):
         messages.warning(request, f"{voiture.nom} est déjà dans votre panier.")
         return redirect('cart:panier_detail')
     
-    if not panier.date_debut or not panier.date_fin:
-        panier.date_debut = date_debut
-        panier.date_fin = date_fin
-        panier.save()
-    
     article, created = ArticlePanier.objects.get_or_create(
         panier=panier,
         voiture=voiture,
-        defaults={'quantite': 1}
+        defaults={
+            'quantite': 1,
+            'date_debut': date_debut,
+            'date_fin': date_fin
+        }
     )
     
     if not created:
         article.quantite += 1
+        article.date_debut = date_debut
+        article.date_fin = date_fin
         article.save()
         messages.success(request, f"🛒 {voiture.nom} ajouté au panier.")
     else:
@@ -206,14 +206,12 @@ def checkout(request):
         messages.error(request, "Votre panier est vide.")
         return redirect('cart:panier_detail')
     
-    if not panier.date_debut or not panier.date_fin:
-        messages.error(request, "Veuillez sélectionner les dates de location.")
-        return redirect('cart:panier_detail')
-    
     articles = panier.articles.select_related('voiture')
-    total = sum(article.voiture.prix * article.quantite for article in articles)
-    total_jours = (panier.date_fin - panier.date_debut).days + 1
-    total = total * total_jours
+    
+    total = 0
+    for article in articles:
+        jours = article.jours if article.date_debut and article.date_fin else 1
+        total += article.voiture.prix * article.quantite * jours
     
     stripe_key = getattr(settings, 'STRIPE_SECRET_KEY', '')
     
@@ -221,7 +219,6 @@ def checkout(request):
         'panier': panier,
         'articles': articles,
         'total': total,
-        'total_jours': total_jours,
         'user': request.user,
         'stripe_configure': bool(stripe_key),
         'stripe_publishable_key': getattr(settings, 'STRIPE_PUBLISHABLE_KEY', ''),
@@ -247,11 +244,13 @@ def passer_commande(request):
         return redirect('cart:panier_detail')
     
     articles = panier.articles.select_related('voiture')
-    total_jours = (panier.date_fin - panier.date_debut).days + 1
-    total = sum(article.voiture.prix * article.quantite for article in articles) * total_jours
+    
+    total = 0
+    for article in articles:
+        jours = article.jours if article.date_debut and article.date_fin else 1
+        total += article.voiture.prix * article.quantite * jours
     
     if paiement == 'carte' and settings.STRIPE_SECRET_KEY:
-        # Créer la commande en attente
         commande = Commande.objects.create(
             utilisateur=request.user,
             total=total,
@@ -261,13 +260,14 @@ def passer_commande(request):
         )
         
         for article in articles:
+            jours = article.jours if article.date_debut and article.date_fin else 1
             ArticleCommande.objects.create(
                 commande=commande,
                 voiture=article.voiture,
                 quantite=article.quantite,
-                prix=article.voiture.prix,
-                date_debut=panier.date_debut,
-                date_fin=panier.date_fin
+                prix=article.voiture.prix * jours,
+                date_debut=article.date_debut,
+                date_fin=article.date_fin
             )
         
         # Créer PaymentIntent et retourner le client_secret
@@ -304,19 +304,17 @@ def passer_commande(request):
         )
         
         for article in articles:
+            jours = article.jours if article.date_debut and article.date_fin else 1
             ArticleCommande.objects.create(
                 commande=commande,
                 voiture=article.voiture,
                 quantite=article.quantite,
-                prix=article.voiture.prix,
-                date_debut=panier.date_debut,
-                date_fin=panier.date_fin
+                prix=article.voiture.prix * jours,
+                date_debut=article.date_debut,
+                date_fin=article.date_fin
             )
         
-        # Vider le panier
         panier.articles.all().delete()
-        panier.date_debut = None
-        panier.date_fin = None
         panier.save()
         
         # Vérifier si c'est une requête AJAX
