@@ -45,7 +45,8 @@ class ArticleCommande(models.Model):
     
     
     def clean(self):
-        if self.date_fin < self.date_debut:
-            raise ValidationError(
-                "La date de fin doit être après la date de début."
-            ) 
+        if self.date_debut and self.date_fin:
+            if self.date_fin < self.date_debut:
+                raise ValidationError(
+                    "La date de fin doit être après la date de début."
+                ) 

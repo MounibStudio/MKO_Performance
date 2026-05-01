@@ -294,41 +294,43 @@ def passer_commande(request):
     
     else:
         # Paiement cash ou Stripe non configuré
-        statut = 'en_attente' if paiement == 'cash' else 'confirmee'
-        
-        commande = Commande.objects.create(
-            utilisateur=request.user,
-            total=total,
-            statut=statut,
-            remarque=remarque,
-            paiement=paiement
-        )
-        
-        for article in articles:
-            jours = article.jours if article.date_debut and article.date_fin else 1
-            ArticleCommande.objects.create(
-                commande=commande,
-                voiture=article.voiture,
-                quantite=article.quantite,
-                prix=article.voiture.prix * jours,
-                date_debut=article.date_debut,
-                date_fin=article.date_fin
+        try:
+            statut = 'en_attente' if paiement == 'cash' else 'confirmee'
+            
+            commande = Commande.objects.create(
+                utilisateur=request.user,
+                total=total,
+                statut=statut,
+                remarque=remarque,
+                paiement=paiement
             )
-        
-        panier.articles.all().delete()
-        panier.save()
-        
-        # Vérifier si c'est une requête AJAX
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({
-                'success': True,
-                'commande_id': commande.id,
-                'redirect': reverse('cart:confirmation', args=[commande.id])
-            })
-        
-        envoyer_email_confirmation(commande)
-        messages.success(request, f"✅ Réservation #{commande.id} confirmée! Un email de confirmation a été envoyé.")
-        return redirect('cart:confirmation', commande_id=commande.id)
+            
+            for article in articles:
+                jours = article.jours if article.date_debut and article.date_fin else 1
+                ArticleCommande.objects.create(
+                    commande=commande,
+                    voiture=article.voiture,
+                    quantite=article.quantite,
+                    prix=article.voiture.prix * jours,
+                    date_debut=article.date_debut,
+                    date_fin=article.date_fin
+                )
+            
+            panier.articles.all().delete()
+            panier.save()
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'commande_id': commande.id,
+                    'redirect': reverse('cart:confirmation', args=[commande.id])
+                })
+            
+            envoyer_email_confirmation(commande)
+            messages.success(request, f"✅ Réservation #{commande.id} confirmée!")
+            return redirect('cart:confirmation', commande_id=commande.id)
+        except Exception as e:
+            return JsonResponse({'error': str(e)})
 
 
 # @require_POST - Removed for API compatibility
