@@ -450,7 +450,7 @@
                             <span>{{ article.voiture.marque }}</span>
                             <span>{{ article.voiture.modele }}</span>
                         </div>
-                        <div class="item-price">{{ article.voiture.prix }} MAD / jour × {{ article.quantite }} = {{ article.total }} MAD</div>
+                        <div class="item-price">{{ article.voiture.prix }} MAD / jour × {{ article.quantite }} × {{ article.jours|default:1 }} jour(s) = {{ article.total }} MAD</div>
                     </div>
                     <form method="POST" action="{% url 'cart:supprimer_article' article.id %}">
                         {% csrf_token %}
