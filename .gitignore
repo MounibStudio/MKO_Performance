@@ -5,7 +5,7 @@ __pycache__/
 db.sqlite3
 db.sqlite3-journal
 staticfiles/
-.env
+# .env removed from gitignore for school project sharing
 venv/
 .venv/
 env/
