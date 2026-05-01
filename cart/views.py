@@ -270,8 +270,8 @@ def passer_commande(request):
                     voiture=article.voiture,
                     quantite=article.quantite,
                     prix=article.voiture.prix * jours,
-                    date_debut=article.date_debut,
-                    date_fin=article.date_fin
+                    date_debut=article.date_debut or None,
+                    date_fin=article.date_fin or None
                 )
             
             result = creer_intent_paiement(total, commande.id)
@@ -312,8 +312,8 @@ def passer_commande(request):
                     voiture=article.voiture,
                     quantite=article.quantite,
                     prix=article.voiture.prix * jours,
-                    date_debut=article.date_debut,
-                    date_fin=article.date_fin
+                    date_debut=article.date_debut or None,
+                    date_fin=article.date_fin or None
                 )
             
             panier.articles.all().delete()
