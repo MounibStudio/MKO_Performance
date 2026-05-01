@@ -254,45 +254,43 @@ def passer_commande(request):
     stripe_configured = bool(settings.STRIPE_SECRET_KEY and settings.STRIPE_SECRET_KEY.startswith('sk_'))
     
     if paiement == 'carte' and stripe_configured:
-        commande = Commande.objects.create(
-            utilisateur=request.user,
-            total=total,
-            statut='en_attente',
-            remarque=remarque,
-            paiement='carte'
-        )
-        
-        for article in articles:
-            jours = article.jours if article.date_debut and article.date_fin else 1
-            ArticleCommande.objects.create(
-                commande=commande,
-                voiture=article.voiture,
-                quantite=article.quantite,
-                prix=article.voiture.prix * jours,
-                date_debut=article.date_debut,
-                date_fin=article.date_fin
+        try:
+            commande = Commande.objects.create(
+                utilisateur=request.user,
+                total=total,
+                statut='en_attente',
+                remarque=remarque,
+                paiement='carte'
             )
-        
-        # Créer PaymentIntent et retourner le client_secret
-        result = creer_intent_paiement(total, commande.id)
-        
-        if 'error' in result:
-            messages.error(request, result['error'])
-            commande.statut = 'annulee'
+            
+            for article in articles:
+                jours = article.jours if article.date_debut and article.date_fin else 1
+                ArticleCommande.objects.create(
+                    commande=commande,
+                    voiture=article.voiture,
+                    quantite=article.quantite,
+                    prix=article.voiture.prix * jours,
+                    date_debut=article.date_debut,
+                    date_fin=article.date_fin
+                )
+            
+            result = creer_intent_paiement(total, commande.id)
+            
+            if 'error' in result:
+                commande.statut = 'annulee'
+                commande.save()
+                return JsonResponse({'error': result['error']})
+            
+            commande.transaction_id = result['id']
             commande.save()
-            return JsonResponse({'redirect': reverse('cart:checkout')})
-        
-        # Sauvegarder l'ID du PaymentIntent
-        commande.transaction_id = result['id']
-        commande.save()
-        
-        # Retourner le client_secret pour le paiement JS
-        return JsonResponse({
-            'success': True,
-            'client_secret': result['client_secret'],
-            'commande_id': commande.id,
-            'stripe_publishable_key': settings.STRIPE_PUBLISHABLE_KEY
-        })
+            
+            return JsonResponse({
+                'success': True,
+                'client_secret': result['client_secret'],
+                'commande_id': commande.id,
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)})
     
     else:
         # Paiement cash ou Stripe non configuré
