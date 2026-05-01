@@ -325,7 +325,8 @@ def passer_commande(request):
                 'redirect': reverse('cart:confirmation', args=[commande.id])
             })
         
-        messages.success(request, f"✅ Réservation #{commande.id} confirmée!")
+        envoyer_email_confirmation(commande)
+        messages.success(request, f"✅ Réservation #{commande.id} confirmée! Un email de confirmation a été envoyé.")
         return redirect('cart:confirmation', commande_id=commande.id)
 
 
@@ -365,6 +366,65 @@ def initialiser_paiement_stripe(request):
         return JsonResponse({'success': False, 'message': str(e)})
 
 
+def envoyer_email_confirmation(commande):
+    """Envoyer email de confirmation de commande"""
+    from django.core.mail import send_mail
+    from django.conf import settings
+    
+    sujet = f"✅ Réservation #{commande.id} confirmée - MKO Performance"
+    
+    message = f"""
+Bonjour {commande.utilisateur.first_name or commande.utilisateur.username},
+
+Votre réservation a été confirmée ! 🎉
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 RÉSUMÉ DE LA COMMANDE #{commande.id}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Statut: {commande.get_statut_display()}
+Mode de paiement: {commande.get_paiement_display()}
+
+🚗 Véhicules réservés:
+"""
+    
+    for article in commande.articles.select_related('voiture'):
+        message += f"   • {article.voiture.nom}"
+        if article.date_debut and article.date_fin:
+            from django.utils import timezone
+            debut = article.date_debut.strftime('%d/%m/%Y') if hasattr(article.date_debut, 'strftime') else article.date_debut
+            fin = article.date_fin.strftime('%d/%m/%Y') if hasattr(article.date_fin, 'strftime') else article.date_fin
+            message += f" ({debut} - {fin})"
+        message += f"\n"
+    
+    message += f"""
+💰 Total: {commande.total} MAD
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📍 Retrait du véhicule à l'agence MKO Performance
+📧 Contact: contact@mkoperformance.com
+📞 Téléphone: +212 5XX-XXXXXX
+
+Merci de votre confiance ! 👏
+
+L'équipe MKO Performance
+"""
+    
+    try:
+        send_mail(
+            sujet,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [commande.utilisateur.email],
+            fail_silently=False,
+        )
+        return True
+    except Exception as e:
+        print(f"Erreur envoi email: {e}")
+        return False
+
+
 @login_required
 def confirmation(request, commande_id):
     """Page de confirmation"""
@@ -382,6 +442,7 @@ def confirmation(request, commande_id):
                 if intent.status == 'succeeded':
                     commande.statut = 'confirmee'
                     commande.save()
+                    envoyer_email_confirmation(commande)
             except stripe.error.StripeError:
                 pass
     
