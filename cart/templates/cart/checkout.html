@@ -380,11 +380,7 @@
                         <div class="vehicle-info">
                             <div class="vehicle-name">{{ article.voiture.nom }}</div>
                             <div class="vehicle-price">
-                                {{ article.voiture.prix }} MAD / jour × {{ article.quantite }}
-                                {% if article.date_debut and article.date_fin %}
-                                × {{ article.jours }} jour(s)
-                                {% endif %}
-                                = {{ article.total }} MAD
+                                {{ article.voiture.prix }} MAD / jour{% if article.quantite > 1 %} × {{ article.quantite }}{% endif %}{% if article.jours > 1 %} × {{ article.jours }} jour(s){% endif %} = {{ article.total }} MAD
                             </div>
                             {% if article.date_debut and article.date_fin %}
                             <div style="color: var(--orange); font-size: 13px; margin-top: 4px;">
