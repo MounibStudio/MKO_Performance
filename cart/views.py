@@ -214,7 +214,7 @@ def checkout(request):
         total += article.voiture.prix * article.quantite * jours
     
     stripe_key = getattr(settings, 'STRIPE_SECRET_KEY', '')
-    stripe_config = bool(stripe_key and stripe_key.startswith('sk_'))
+    stripe_config = stripe_key and len(stripe_key) > 20
     
     context = {
         'panier': panier,
@@ -251,7 +251,7 @@ def passer_commande(request):
         jours = article.jours if article.date_debut and article.date_fin else 1
         total += article.voiture.prix * article.quantite * jours
     
-    stripe_configured = bool(settings.STRIPE_SECRET_KEY and settings.STRIPE_SECRET_KEY.startswith('sk_'))
+    stripe_configured = bool(settings.STRIPE_SECRET_KEY and len(settings.STRIPE_SECRET_KEY) > 20)
     
     if paiement == 'carte' and stripe_configured:
         try:
