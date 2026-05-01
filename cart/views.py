@@ -214,13 +214,14 @@ def checkout(request):
         total += article.voiture.prix * article.quantite * jours
     
     stripe_key = getattr(settings, 'STRIPE_SECRET_KEY', '')
+    stripe_config = bool(stripe_key and stripe_key.startswith('sk_'))
     
     context = {
         'panier': panier,
         'articles': articles,
         'total': total,
         'user': request.user,
-        'stripe_configure': bool(stripe_key),
+        'stripe_configure': stripe_config,
         'stripe_publishable_key': getattr(settings, 'STRIPE_PUBLISHABLE_KEY', ''),
     }
     return render(request, 'cart/checkout.html', context)
@@ -250,7 +251,9 @@ def passer_commande(request):
         jours = article.jours if article.date_debut and article.date_fin else 1
         total += article.voiture.prix * article.quantite * jours
     
-    if paiement == 'carte' and settings.STRIPE_SECRET_KEY:
+    stripe_configured = bool(settings.STRIPE_SECRET_KEY and settings.STRIPE_SECRET_KEY.startswith('sk_'))
+    
+    if paiement == 'carte' and stripe_configured:
         commande = Commande.objects.create(
             utilisateur=request.user,
             total=total,

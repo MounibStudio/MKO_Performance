@@ -396,8 +396,8 @@
                 <div class="section">
                     <h2 class="section-title">💳 Mode de Paiement</h2>
                     <div class="paiement-options">
-                        <label class="paiement-option selected" onclick="selectPaiement('cash', event)">
-                            <input type="radio" name="paiement" value="cash" {% if not stripe_configure %}checked{% endif %}>
+                        <label class="paiement-option" onclick="selectPaiement('cash', event)">
+                            <input type="radio" name="paiement" value="cash">
                             <span class="paiement-icon">💵</span>
                             <div class="paiement-label">
                                 <div class="title">Espèces</div>
@@ -489,7 +489,14 @@
     
     // Soumission du formulaire
     document.getElementById('checkoutForm').addEventListener('submit', async function(event) {
-        const paiement = document.querySelector('input[name="paiement"]:checked').value;
+        const paiementEl = document.querySelector('input[name="paiement"]:checked');
+        if (!paiementEl) {
+            alert('Veuillez sélectionner un mode de paiement.');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Confirmer la Reservation →';
+            return;
+        }
+        const paiement = paiementEl.value;
         
         // Soumission AJAX pour tous les paiements
         event.preventDefault();
@@ -509,6 +516,16 @@
                 },
                 body: formData
             });
+            
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                console.error('Not JSON response:', text);
+                alert('Erreur du serveur. Veuillez réessayer.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Confirmer la Reservation →';
+                return;
+            }
             
             const data = await response.json();
             console.log('Server response:', data);
