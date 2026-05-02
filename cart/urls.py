@@ -15,4 +15,5 @@ urlpatterns = [
     path('passer-commande/', views.passer_commande, name='passer_commande'),
     path('initialiser-paiement/', views.initialiser_paiement_stripe, name='initialiser_paiement'),
     path('confirmation/<int:commande_id>/', views.confirmation, name='confirmation'),
+    path('mes-reservations/', views.mes_reservations, name='mes_reservations'),
 ]

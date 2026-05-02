@@ -10,19 +10,19 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('cart', '0001_initial'),
+        ('orders', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='panier',
+            model_name='commande',
             name='utilisateur',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='paniers', to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='commandes', to=settings.AUTH_USER_MODEL),
         ),
         migrations.AddField(
-            model_name='articlepanier',
-            name='panier',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='articles', to='cart.panier'),
+            model_name='articlecommande',
+            name='commande',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='articles', to='orders.commande'),
         ),
     ]

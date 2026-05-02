@@ -6,6 +6,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.conf import settings
 from django.utils import timezone
+from django.db import connection
+from django.urls import reverse
 from datetime import date
 
 from .models import Panier, ArticlePanier
@@ -265,13 +267,11 @@ def passer_commande(request):
             
             for article in articles:
                 jours = article.jours if article.date_debut and article.date_fin else 1
-                ArticleCommande.objects.create(
-                    commande=commande,
-                    voiture=article.voiture,
-                    quantite=article.quantite,
-                    prix=article.voiture.prix * jours,
-                    date_debut=article.date_debut or None,
-                    date_fin=article.date_fin or None
+                cursor = connection.cursor()
+                cursor.execute("SET SESSION sql_mode = ''")
+                cursor.execute(
+                    "INSERT INTO orders_articlecommande (commande_id, voiture_id, quantite, prix, date_debut, date_fin) VALUES (%s, %s, %s, %s, %s, %s)",
+                    [commande.id, article.voiture.id, article.quantite, float(article.voiture.prix * jours), article.date_debut, article.date_fin]
                 )
             
             result = creer_intent_paiement(total, commande.id)
@@ -307,13 +307,11 @@ def passer_commande(request):
             
             for article in articles:
                 jours = article.jours if article.date_debut and article.date_fin else 1
-                ArticleCommande.objects.create(
-                    commande=commande,
-                    voiture=article.voiture,
-                    quantite=article.quantite,
-                    prix=article.voiture.prix * jours,
-                    date_debut=article.date_debut or None,
-                    date_fin=article.date_fin or None
+                cursor = connection.cursor()
+                cursor.execute("SET SESSION sql_mode = ''")
+                cursor.execute(
+                    "INSERT INTO orders_articlecommande (commande_id, voiture_id, quantite, prix, date_debut, date_fin) VALUES (%s, %s, %s, %s, %s, %s)",
+                    [commande.id, article.voiture.id, article.quantite, float(article.voiture.prix * jours), article.date_debut, article.date_fin]
                 )
             
             panier.articles.all().delete()
@@ -374,8 +372,10 @@ def envoyer_email_confirmation(commande):
     from django.core.mail import send_mail
     from django.conf import settings
     
-    # Skip if email not configured
+    print(f"Email config: HOST={settings.EMAIL_HOST}, USER={settings.EMAIL_HOST_USER}")
+    
     if not settings.EMAIL_HOST_USER:
+        print("No email configured")
         return False
     
     try:
@@ -392,11 +392,14 @@ def envoyer_email_confirmation(commande):
             message,
             settings.DEFAULT_FROM_EMAIL,
             [commande.utilisateur.email],
-            fail_silently=True,
+            fail_silently=False,
         )
+        print(f"Email sent successfully to {commande.utilisateur.email}")
         return True
     except Exception as e:
         print(f"Erreur email: {e}")
+        import traceback
+        traceback.print_exc()
         return False
 
 
@@ -428,3 +431,16 @@ def confirmation(request, commande_id):
         'articles': articles,
     }
     return render(request, 'cart/confirmation.html', context)
+
+
+@login_required
+def mes_reservations(request):
+    """Page listant toutes les réservations de l'utilisateur"""
+    reservations = Commande.objects.filter(
+        utilisateur=request.user
+    ).order_by('-cree_le').prefetch_related('articles__voiture')
+    
+    context = {
+        'reservations': reservations,
+    }
+    return render(request, 'cart/mes_reservations.html', context)

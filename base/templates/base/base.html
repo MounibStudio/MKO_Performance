@@ -186,6 +186,72 @@
             gap: 12px;
         }
 
+        /* Reservations Dropdown */
+        .reservations-dropdown {
+            position: relative;
+        }
+        .dropdown-arrow {
+            font-size: 10px;
+            margin-left: 5px;
+        }
+        .reservations-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--black-card);
+            border: 1px solid var(--orange);
+            border-radius: 8px;
+            min-width: 250px;
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .reservations-dropdown:hover .reservations-menu {
+            display: block;
+        }
+        .reservation-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: var(--white);
+            text-decoration: none;
+        }
+        .reservation-item:hover {
+            background: rgba(255,85,0,0.1);
+        }
+        .res-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .res-id {
+            font-weight: 600;
+            color: var(--orange);
+        }
+        .res-date {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+        }
+        .res-status {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .res-status.confirmed {
+            background: rgba(0,255,0,0.2);
+            color: #0f0;
+        }
+        .res-status.pending {
+            background: rgba(255,165,0,0.2);
+            color: var(--orange);
+        }
+        .res-status.cancelled {
+            background: rgba(255,0,0,0.2);
+            color: #f00;
+        }
+
         .btn-signin {
             padding: 9px 24px;
             background: transparent;
@@ -544,10 +610,26 @@
                         <span class="badge">{{ nombre_items|default:"0" }}</span>
                     </a>
                 </li>
-                <li>
-                    <a href="#" class="{% block nav_orders %}{% endblock %}">
+                <li class="reservations-dropdown">
+                    <a href="{% url 'cart:mes_reservations' %}" class="{% block nav_orders %}{% endblock %}">
                         <span class="nav-icon">◎</span> Mes Réservations
+                        <span class="dropdown-arrow">▼</span>
                     </a>
+                    {% if mes_reservations %}
+                    <div class="reservations-menu">
+                        {% for res in mes_reservations %}
+                        <a href="/panier/confirmation/{{ res.id }}/" class="reservation-item">
+                            <div class="res-info">
+                                <span class="res-id">#{{ res.id }}</span>
+                                <span class="res-date">{{ res.cree_le|date:"d/m/y" }}</span>
+                            </div>
+                            <div class="res-status">{{ res.total }} MAD</div>
+                            <div class="res-status {% if res.statut == 'confirmee' %}confirmed{% elif res.statut == 'annulee' %}cancelled{% else %}pending{% endif %}">{{ res.get_statut_display }}</div>
+                        </a>
+                        {% endfor %}
+                        <a href="{% url 'cart:mes_reservations' %}" class="reservation-item" style="text-align:center;color:var(--orange);">Voir toutes</a>
+                    </div>
+                    {% endif %}
                 </li>
                 <li>
                  {% if request.user.is_staff %}

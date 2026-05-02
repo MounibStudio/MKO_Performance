@@ -22,8 +22,8 @@ class Commande(models.Model):
 
 
 class ArticleCommande(models.Model):
-    date_debut = models.DateTimeField(null=True, blank=True)
-    date_fin   =  models.DateTimeField(null=True, blank=True)
+    date_debut = models.DateField(null=True, blank=True)
+    date_fin   =  models.DateField(null=True, blank=True)
 
     commande = models.ForeignKey(
         'orders.Commande',

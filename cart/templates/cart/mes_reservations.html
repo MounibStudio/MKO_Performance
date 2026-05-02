@@ -1,0 +1,160 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Mes Réservations - MKO Performance{% endblock %}
+
+{% block extra_css %}
+<style>
+    .reservations-page {
+        padding: 50px 40px 100px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .page-title {
+        font-family: 'Bebas Neue', cursive;
+        font-size: clamp(36px, 5vw, 56px);
+        color: var(--white);
+        letter-spacing: 3px;
+        margin-bottom: 40px;
+    }
+    .reservations-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .reservation-card {
+        background: var(--black-card);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 8px;
+        padding: 24px;
+    }
+    .res-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .res-id {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 24px;
+        color: var(--orange);
+    }
+    .res-date {
+        color: rgba(255,255,255,0.5);
+    }
+    .res-status {
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-weight: 600;
+    }
+    .res-status.confirmee { background: rgba(0,255,0,0.2); color: #0f0; }
+    .res-status.en_attente { background: rgba(255,165,0,0.2); color: var(--orange); }
+    .res-status.annulee { background: rgba(255,0,0,0.2); color: #f00; }
+    
+    .res-items {
+        margin-bottom: 20px;
+    }
+    .res-item {
+        display: flex;
+        gap: 16px;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .res-item:last-child { border: none; }
+    .res-item-img {
+        width: 80px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+    .res-item-info h4 {
+        color: var(--white);
+        margin-bottom: 4px;
+    }
+    .res-item-info p {
+        color: rgba(255,255,255,0.5);
+        font-size: 13px;
+    }
+    .res-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .res-total {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 28px;
+        color: var(--orange);
+    }
+    .res-actions a {
+        padding: 10px 20px;
+        background: var(--orange);
+        color: var(--white);
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: 600;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 60px;
+        color: rgba(255,255,255,0.5);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reservations-page">
+    <h1 class="page-title">Mes Réservations</h1>
+    
+    {% if reservations %}
+    <div class="reservations-list">
+        {% for res in reservations %}
+        <div class="reservation-card">
+            <div class="res-header">
+                <div>
+                    <div class="res-id">Réservation #{{ res.id }}</div>
+                    <div class="res-date">Le {{ res.cree_le|date:"d/m/Y à H:i" }}</div>
+                </div>
+                <div class="res-status {{ res.statut }}">{{ res.get_statut_display }}</div>
+            </div>
+            
+            <div class="res-items">
+                {% for article in res.articles.all %}
+                <div class="res-item">
+                    {% if article.voiture.image_exterieur %}
+                    <img src="{{ article.voiture.image_exterieur.url }}" class="res-item-img" alt="{{ article.voiture.nom }}">
+                    {% else %}
+                    <div class="res-item-img" style="background:#111;display:flex;align-items:center;justify-content:center;">🚗</div>
+                    {% endif %}
+                    <div class="res-item-info">
+                        <h4>{{ article.voiture.nom }}</h4>
+                        <p>
+                            {% if article.date_debut and article.date_fin %}
+                            {{ article.date_debut|date:"d/m" }} - {{ article.date_fin|date:"d/m/y" }}
+                            {% endif %}
+                            | {{ article.quantite }} × {{ article.prix }} MAD
+                        </p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="res-footer">
+                <div class="res-total">Total: {{ res.total }} MAD</div>
+                <div class="res-actions">
+                    <a href="{% url 'cart:confirmation' res.id %}">Voir détails</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <h2>Aucune réservation</h2>
+        <p>Vous n'avez pas encore fait de réservation.</p>
+        <a href="{% url 'product_list' %}" style="color: var(--orange);">Voir le catalogue</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
