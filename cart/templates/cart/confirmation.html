@@ -166,10 +166,38 @@
         </div>
     </div>
 
-    <p style="color: rgba(255,255,255,0.5); margin-bottom: 30px;">
-        Un email de confirmation a été envoyé à votre adresse email.<br>
-        Notre équipe vous contactera sous peu pour finaliser.
+    {% if email_result %}
+    <p style="color: {% if email_result == 'Envoyé' %}#4ade80{% else %}#fbbf24{% endif %}; margin-bottom: 20px;">
+        📧 Email: {{ email_result }}
     </p>
+    {% endif %}
+
+    {% if user.is_authenticated and commande.statut != 'annulee' %}
+    <div style="margin: 30px 0; padding: 24px; background: var(--black-card); border: 1px solid rgba(255,85,0,0.2); border-radius: 8px;">
+        <div style="font-family: 'Bebas Neue', cursive; font-size: 24px; color: var(--orange); letter-spacing: 2px; margin-bottom: 20px;">Votre avis nous interésse</div>
+        <form method="POST" action="{% url 'ajouter_review' commande.articles.first.voiture.id %}">
+            {% csrf_token %}
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 12px; font-weight: 700; letter-spacing: 2px; color: rgba(255,255,255,0.5); text-transform: uppercase; margin-bottom: 8px;">Note</label>
+                <select name="note" style="width: 100%; padding: 12px; background: #1A1A1A; border: 1px solid rgba(255,85,0,0.3); border-radius: 4px; color: white; font-size: 16px;" required>
+                    <option value="" style="background: #1A1A1A; color: white;">Sélectionner une note</option>
+                    <option value="5" style="background: #1A1A1A; color: white;">★★★★★ - Excellent</option>
+                    <option value="4" style="background: #1A1A1A; color: white;">★★★★☆ - Très bien</option>
+                    <option value="3" style="background: #1A1A1A; color: white;">★★★☆☆ - Bien</option>
+                    <option value="2" style="background: #1A1A1A; color: white;">★★☆☆☆ - Moyen</option>
+                    <option value="1" style="background: #1A1A1A; color: white;">★☆☆☆☆ - Mauvais</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 12px; font-weight: 700; letter-spacing: 2px; color: rgba(255,255,255,0.5); text-transform: uppercase; margin-bottom: 8px;">Commentaire</label>
+                <textarea name="commentaire" rows="3" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: var(--white); font-size: 14px; resize: vertical;" placeholder="Partagez votre expérience..." required></textarea>
+            </div>
+            <button type="submit" style="padding: 12px 24px; background: var(--orange); border: none; color: white; font-family: 'Bebas Neue', cursive; font-size: 16px; letter-spacing: 3px; cursor: pointer; clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%); transition: all 0.25s;">
+                Soumettre mon avis
+            </button>
+        </form>
+    </div>
+    {% endif %}
 
     <a href="{% url 'home' %}" class="btn-home">Retour à l'accueil</a>
 </div>

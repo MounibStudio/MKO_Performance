@@ -28,11 +28,13 @@ def panier_detail(request):
     
     total = 0
     nombre_items = 0
+    total_jours = 0
     
     for article in articles:
         jours = article.jours if article.date_debut and article.date_fin else 1
         total += article.voiture.prix * article.quantite * jours
         nombre_items += article.quantite
+        total_jours = max(total_jours, jours)
     
     from datetime import date as date_module
     context = {
@@ -40,6 +42,7 @@ def panier_detail(request):
         'articles': articles,
         'total': total,
         'nombre_items': nombre_items,
+        'total_jours': total_jours,
         'today': date_module.today().isoformat(),
     }
     return render(request, 'cart/panier.html', context)
@@ -317,6 +320,10 @@ def passer_commande(request):
             panier.articles.all().delete()
             panier.save()
             
+            # Envoyer email de confirmation
+            email_result = send_confirmation_email(commande, request.user)
+            request.session['email_result'] = email_result
+            
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
                     'success': True,
@@ -324,8 +331,8 @@ def passer_commande(request):
                     'redirect': reverse('cart:confirmation', args=[commande.id])
                 })
             
-            envoyer_email_confirmation(commande)
             messages.success(request, f"✅ Réservation #{commande.id} confirmée!")
+            
             return redirect('cart:confirmation', commande_id=commande.id)
         except Exception as e:
             return JsonResponse({'error': str(e)})
@@ -367,40 +374,7 @@ def initialiser_paiement_stripe(request):
         return JsonResponse({'success': False, 'message': str(e)})
 
 
-def envoyer_email_confirmation(commande):
-    """Envoyer email de confirmation de commande"""
-    from django.core.mail import send_mail
-    from django.conf import settings
-    
-    print(f"Email config: HOST={settings.EMAIL_HOST}, USER={settings.EMAIL_HOST_USER}")
-    
-    if not settings.EMAIL_HOST_USER:
-        print("No email configured")
-        return False
-    
-    try:
-        sujet = f"Reservation #{commande.id} confirmée - MKO Performance"
-        
-        message = f"Bonjour {commande.utilisateur.first_name or commande.utilisateur.username},\n\n"
-        message += f"Votre reservation #{commande.id} a ete confirmee.\n\n"
-        message += f"Total: {commande.total} MAD\n"
-        message += f"Paiement: {commande.get_paiement_display()}\n\n"
-        message += "Merci de votre confiance!\nL'equipe MKO Performance"
-        
-        send_mail(
-            sujet,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [commande.utilisateur.email],
-            fail_silently=False,
-        )
-        print(f"Email sent successfully to {commande.utilisateur.email}")
-        return True
-    except Exception as e:
-        print(f"Erreur email: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
+
 
 
 @login_required
@@ -420,15 +394,18 @@ def confirmation(request, commande_id):
                 if intent.status == 'succeeded':
                     commande.statut = 'confirmee'
                     commande.save()
-                    envoyer_email_confirmation(commande)
+                    send_confirmation_email(commande, request.user)
             except stripe.error.StripeError:
                 pass
     
     articles = commande.articles.select_related('voiture')
     
+    email_result = request.session.pop('email_result', None)
+    
     context = {
         'commande': commande,
         'articles': articles,
+        'email_result': email_result,
     }
     return render(request, 'cart/confirmation.html', context)
 
@@ -444,3 +421,51 @@ def mes_reservations(request):
         'reservations': reservations,
     }
     return render(request, 'cart/mes_reservations.html', context)
+
+
+def send_confirmation_email(commande, user):
+    """Envoyer email de confirmation de réservation"""
+    import logging
+    from django.core.mail import send_mail
+    from django.conf import settings
+    
+    logger = logging.getLogger(__name__)
+    
+    if not user.email:
+        logger.warning(f"Pas d'email pour l'utilisateur {user.id}")
+        return "Pas d'email"
+    
+    try:
+        vehicles = [a.voiture.nom for a in commande.articles.all()]
+        vehicles_text = ", ".join(vehicles)
+        
+        sujet = f"Réservation #{commande.id} confirmée - MKO Performance"
+        
+        paiement_text = "Cash" if commande.paiement == 'cash' else "Carte" if commande.paiement == 'carte' else commande.paiement
+        
+        message = f"""Bonjour {user.first_name or user.username},
+
+Votre réservation #{commande.id} a été confirmée.
+
+Détails:
+- Véhicule(s): {vehicles_text}
+- Total: {commande.total} MAD
+- Mode de paiement: {paiement_text}
+- Date: {commande.cree_le.strftime('%d/%m/%Y à %H:%M')}
+
+Merci de votre confiance!
+
+L'équipe MKO Performance"""
+
+        send_mail(
+            sujet,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=False,
+        )
+        logger.info(f"Email de confirmation envoyé à {user.email}")
+        return "Envoyé"
+    except Exception as e:
+        logger.error(f"Erreur envoi email: {e}")
+        return f"Erreur: {e}"

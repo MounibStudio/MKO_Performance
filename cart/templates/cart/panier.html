@@ -411,23 +411,7 @@
     {% else %}
     <div class="cart-layout">
         <div>
-            <div class="dates-selector">
-                <h2 class="dates-title">📅 Dates de location</h2>
-                {% if panier.date_debut and panier.date_fin %}
-                    <p style="color: var(--orange); font-size: 18px; font-weight: 600;">
-                        Du {{ panier.date_debut|date:"d M yyyy" }} au {{ panier.date_fin|date:"d M yyyy" }}
-                        <small style="color: rgba(255,255,255,0.5); font-size: 12px;">({{ total_jours }} jour(s))</small>
-                    </p>
-                    <p style="color: rgba(255,255,255,0.4); font-size: 12px; margin-top: 12px;">
-                        Cliquez sur une voiture dans le catalogue pour changer les dates
-                    </p>
-                {% else %}
-                    <p style="color: rgba(255,255,255,0.5);">Aucune date sélectionnée</p>
-                    <a href="{% url 'product_list' %}" class="btn-continue" style="margin-top: 16px; display: inline-block;">
-                        Choisir les dates →
-                    </a>
-                {% endif %}
-            </div>
+            
 
             <div class="cart-items">
                 {% for article in articles %}
@@ -443,7 +427,7 @@
                         <h3>{{ article.voiture.nom }}</h3>
                         {% if article.date_debut and article.date_fin %}
                         <div class="item-dates">
-                            📅 {{ article.date_debut|date:"d/m" }} - {{ article.date_fin|date:"d/m/y" }} ({{ article.jours }} jour(s))
+                            📅 {{ article.date_debut|date:"d/m/Y" }} - {{ article.date_fin|date:"d/m/Y" }} ({{ article.jours }} jour(s))
                         </div>
                         {% endif %}
                         <div class="item-meta">
