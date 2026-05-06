@@ -394,6 +394,13 @@ def confirmation(request, commande_id):
                 if intent.status == 'succeeded':
                     commande.statut = 'confirmee'
                     commande.save()
+
+                    panier = Panier.objects.filter(utilisateur=request.user).first()
+                    if panier:
+                        panier.articles.all().delete()
+                        panier.save()
+
+
                     send_confirmation_email(commande, request.user)
             except stripe.error.StripeError:
                 pass

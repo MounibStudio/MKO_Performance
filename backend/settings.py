@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'users',
     'cart',
     'orders',
+    'emails',
 ]
 
 MIDDLEWARE = [
@@ -111,14 +112,16 @@ STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
 STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', '')
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
 
-# Email Configuration (Mailjet)
+# Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.mailjet.com'
+EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = '9c086805ed26bb898afbeabd616eaefc'
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD', '')
-DEFAULT_FROM_EMAIL = 'MKO Performance <mkoperformance@outlook.com>'
+
+EMAIL_HOST_USER = 'mkoperformance@gmail.com'
+EMAIL_HOST_PASSWORD = 'ndie pmdg mmwt svgq'
+
+DEFAULT_FROM_EMAIL = "MKO Performance <mkoperformance@gmail.com>"
 
 # Groq API for Chatbot
 GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '')
