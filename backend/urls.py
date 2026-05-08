@@ -11,6 +11,7 @@ urlpatterns = [
     path('accounts/', include('users.urls')),
     path('panier/', include('cart.urls', namespace='cart')),
     path('api/chatbot/', chatbot_api, name='chatbot_api'),
+    path("emails/", include("emails.urls")),
 ]
 
 if settings.DEBUG:
