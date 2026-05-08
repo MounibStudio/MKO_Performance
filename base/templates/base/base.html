@@ -22,6 +22,10 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        html {
+    overflow-y: scroll;
+        }
+
         body {
             background: var(--black);
             color: var(--white);
@@ -67,45 +71,18 @@
             text-decoration: none;
         }
 
-        .logo-icon {
-            width: 42px;
-            height: 42px;
-            background: var(--orange);
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Bebas Neue', cursive;
-            font-size: 18px;
-            color: var(--white);
-            transition: transform 0.3s ease;
+        .navbar-logo img {
+           height: 100px;
+            width: auto;
+            object-fit: contain;
+            display: block;
         }
 
-        .navbar-logo:hover .logo-icon {
-            transform: rotate(30deg);
+        .navbar-logo:hover img {
+            opacity: 0.85;
+            transform: scale(1.02);
         }
 
-        .logo-text {
-            display: flex;
-            flex-direction: column;
-            line-height: 1;
-        }
-
-        .logo-mko {
-            font-family: 'Bebas Neue', cursive;
-            font-size: 24px;
-            color: var(--white);
-            letter-spacing: 4px;
-        }
-
-        .logo-perf {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 10px;
-            color: var(--orange);
-            letter-spacing: 6px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
 
         /* Nav Links (after login) */
         .navbar-links {
@@ -128,7 +105,9 @@
             letter-spacing: 1.5px;
             text-transform: uppercase;
             border-radius: 3px;
-            transition: all 0.25s ease;
+            transition:
+                color 0.25s ease,
+                background-color 0.25s ease;
             position: relative;
         }
 
@@ -312,6 +291,13 @@
             font-size: 16px;
             color: var(--white);
             cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px var(--orange-glow);
         }
 
         .btn-logout {
@@ -450,7 +436,7 @@
             font-size: 14px;
             font-weight: 600;
             letter-spacing: 0.5px;
-            transition: all 0.2s ease;
+            transition: transform 0.2s ease, color 0.2s ease;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -467,7 +453,7 @@
 
         .footer-col ul li a:hover {
             color: var(--white);
-            padding-left: 4px;
+            transform: translateX(4px);
         }
 
         .footer-col ul li a:hover::before {
@@ -584,11 +570,7 @@
     <!-- ===== NAVBAR ===== -->
     <nav class="navbar">
         <a href="{% url 'home' %}" class="navbar-logo">
-            <div class="logo-icon">M</div>
-            <div class="logo-text">
-                <span class="logo-mko">MKO</span>
-                <span class="logo-perf">Performance</span>
-            </div>
+            <img src="{% static 'base/logo/MKO_Performance_logo-removebg-preview.png' %}" alt="MKO Performance">
         </a>
 
         {% if user.is_authenticated %}
@@ -646,9 +628,9 @@
 
             </ul>
             <div class="user-menu">
-                <div class="user-avatar" title="{{ user.username }}">
+                <a href="{% url 'profile' %}" class="user-avatar" title="{{ user.username }}">
                     {{ user.username|first|upper }}
-                </div>
+                </a>
                 <a href="{% url 'logout' %}" class="btn-logout">Déconnexion</a>
             </div>
         {% else %}
@@ -833,6 +815,7 @@
             cursor: pointer;
             box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
             animation: float 3s ease-in-out infinite;
+            will-change: transform;
         }
         @keyframes float {
             0%, 100% { transform: translateY(0); }
@@ -924,8 +907,9 @@
             .chatbot-toggle { right: 20px; bottom: 80px; }
         }
     </style>
+    -->
 
-    <script>
+<script>
         // Auto-dismiss messages after 4s
         setTimeout(() => {
             document.querySelectorAll('.message').forEach(m => {

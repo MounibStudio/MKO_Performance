@@ -1,10 +1,15 @@
 from django.core.management.base import BaseCommand
 from products.models import Article
+from django.core.files import File
+from pathlib import Path
 
 class Command(BaseCommand):
     help = 'Crée des articles de blog'
 
     def handle(self, *args, **options):
+        base_dir = Path(__file__).resolve().parent.parent.parent.parent
+        media_blog_path = base_dir / 'media' / 'blog'
+
         articles = [
             {
                 'titre': 'Les tendances automobiles 2026',
@@ -17,6 +22,7 @@ class Command(BaseCommand):
 4. Le partage - La location de courte durée gagne en popularité
 
 Chez MKO Performance, nous adaptons notre flotte pour répondre à ces nouvelles attentes.''',
+                'image': 'blog1.png',
             },
             {
                 'titre': 'Guide: Bien choisir sa voiture de location',
@@ -29,6 +35,7 @@ Chez MKO Performance, nous adaptons notre flotte pour répondre à ces nouvelles
 4. Lisez les avis - Les retours clients sont précieux
 
 Notre équipe est là pour vous guider vers le véhicule idéal.''',
+                'image': 'blog2.png',
             },
             {
                 'titre': 'MKO Performance: Notre engagement qualité',
@@ -42,10 +49,12 @@ Notre équipe est là pour vous guider vers le véhicule idéal.''',
 ✓ Support WhatsApp pour répondres à vos questions
 
 La satisfaction de nos clients est notre priorité absolue.''',
+                'image': 'blog3.png',
             },
         ]
 
         for article_data in articles:
+            image_name = article_data.pop('image', None)
             article, created = Article.objects.get_or_create(
                 slug=article_data['slug'],
                 defaults=article_data
@@ -54,5 +63,14 @@ La satisfaction de nos clients est notre priorité absolue.''',
                 self.stdout.write(self.style.SUCCESS(f'Article créé: {article.titre}'))
             else:
                 self.stdout.write(f'Article existant: {article.titre}')
+            
+            if image_name and not article.image:
+                image_path = media_blog_path / image_name
+                if image_path.exists():
+                    with open(image_path, 'rb') as f:
+                        article.image.save(image_name, File(f), save=True)
+                    self.stdout.write(self.style.SUCCESS(f'  Image added: {image_name}'))
+                else:
+                    self.stdout.write(self.style.WARNING(f'  Image not found: {image_path}'))
 
         self.stdout.write(self.style.SUCCESS('Terminé!'))
