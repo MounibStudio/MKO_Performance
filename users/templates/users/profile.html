@@ -1,0 +1,266 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Mon Profil — MKO Performance{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-page {
+        min-height: calc(100vh - 70px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .profile-page::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255,85,0,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,85,0,0.04) 1px, transparent 1px);
+        background-size: 50px 50px;
+    }
+
+    .profile-page::after {
+        content: 'PROFILE';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-family: 'Bebas Neue', cursive;
+        font-size: 200px;
+        color: rgba(255,85,0,0.03);
+        white-space: nowrap;
+        pointer-events: none;
+        letter-spacing: 20px;
+    }
+
+    .profile-card {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        max-width: 540px;
+        background: var(--black-card);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-top: 3px solid var(--orange);
+        padding: 50px 48px;
+        animation: cardIn 0.6s ease;
+    }
+
+    @keyframes cardIn {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .profile-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .profile-avatar-large {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, var(--orange), #cc4400);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Bebas Neue', cursive;
+        font-size: 42px;
+        color: var(--white);
+        margin: 0 auto 20px;
+    }
+
+    .profile-header h2 {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 32px;
+        color: var(--white);
+        letter-spacing: 3px;
+    }
+
+    .profile-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    @media (max-width: 600px) {
+        .form-row { grid-template-columns: 1fr; }
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-group label {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--white-dim);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        padding: 14px 18px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 4px;
+        color: var(--white);
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        transition: all 0.25s ease;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--orange);
+        background: rgba(255,85,0,0.05);
+        box-shadow: 0 0 0 3px rgba(255,85,0,0.1);
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+        color: rgba(255,255,255,0.25);
+    }
+
+    .password-section {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .password-section h3 {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 18px;
+        color: var(--orange);
+        letter-spacing: 2px;
+        margin-bottom: 20px;
+    }
+
+    .btn-save {
+        margin-top: 30px;
+        width: 100%;
+        padding: 16px;
+        background: var(--orange);
+        border: none;
+        color: var(--white);
+        font-family: 'Bebas Neue', cursive;
+        font-size: 18px;
+        letter-spacing: 3px;
+        cursor: pointer;
+        clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+        transition: all 0.25s ease;
+    }
+
+    .btn-save:hover {
+        background: var(--orange-light);
+        box-shadow: 0 0 30px var(--orange-glow);
+        transform: translateY(-2px);
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--white-dim);
+        text-decoration: none;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+        font-size: 14px;
+        letter-spacing: 1px;
+        margin-bottom: 30px;
+        transition: color 0.25s;
+    }
+
+    .back-link:hover {
+        color: var(--orange);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+    <div class="profile-card">
+        <a href="{% url 'home' %}" class="back-link">← Retour à l'accueil</a>
+        
+        <div class="profile-header">
+            <div class="profile-avatar-large">
+                {{ user.username|first|upper }}
+            </div>
+            <h2>{{ user.username }}</h2>
+        </div>
+
+        <form method="POST" class="profile-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label>Nom d'utilisateur</label>
+                <input type="text" name="username" value="{{ user.username|default:'' }}" placeholder="Votre nom d'utilisateur">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Prénom</label>
+                    <input type="text" name="first_name" value="{{ user.first_name|default:'' }}" placeholder="Votre prénom">
+                </div>
+                <div class="form-group">
+                    <label>Nom</label>
+                    <input type="text" name="last_name" value="{{ user.last_name|default:'' }}" placeholder="Votre nom">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" value="{{ user.email|default:'' }}" placeholder="Votre email">
+            </div>
+
+            <div class="form-group">
+                <label>Téléphone</label>
+                <input type="tel" name="telephone" value="{{ user.telephone|default:'' }}" placeholder="Votre téléphone">
+            </div>
+
+            <div class="form-group">
+                <label>Adresse</label>
+                <textarea name="adresse" placeholder="Votre adresse">{{ user.adresse|default:'' }}</textarea>
+            </div>
+
+            <div class="password-section">
+                <h3>Changer le mot de passe</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nouveau mot de passe</label>
+                        <input type="password" name="password" placeholder="Laissez vide pour garder l'actuel">
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmer</label>
+                        <input type="password" name="password2" placeholder="Confirmez le mot de passe">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-save">ENREGISTRER</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

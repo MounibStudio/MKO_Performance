@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.views import View
+from .models import User
 
 class LoginView(View):
     def get(self, request):
@@ -60,3 +61,43 @@ def logout_view(request):
     logout(request)
     messages.success(request, 'Déconnexion réussie!')
     return redirect('home')
+
+
+class ProfileView(View):
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return redirect('login')
+        return render(request, 'users/profile.html', {'user': request.user})
+    
+    def post(self, request):
+        if not request.user.is_authenticated:
+            return redirect('login')
+        
+        user = request.user
+        new_username = request.POST.get('username', '')
+        if new_username and new_username != user.username:
+            if User.objects.filter(username=new_username).exists():
+                messages.error(request, 'Ce nom d\'utilisateur existe déjà.')
+                return render(request, 'users/profile.html', {'user': user})
+            user.username = new_username
+        
+        user.first_name = request.POST.get('first_name', '')
+        user.last_name = request.POST.get('last_name', '')
+        user.email = request.POST.get('email', '')
+        user.telephone = request.POST.get('telephone', '')
+        user.adresse = request.POST.get('adresse', '')
+        
+        password = request.POST.get('password', '')
+        password2 = request.POST.get('password2', '')
+        
+        if password:
+            if password == password2:
+                user.set_password(password)
+                messages.success(request, 'Mot de passe mis à jour!')
+            else:
+                messages.error(request, 'Les mots de passe ne correspondent pas.')
+                return render(request, 'users/profile.html', {'user': user})
+        
+        user.save()
+        messages.success(request, 'Profil mis à jour avec succès!')
+        return render(request, 'users/profile.html', {'user': user})
