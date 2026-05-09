@@ -10,6 +10,11 @@ class HomeView(View):
         return render(request, 'base/home.html', {})
 
 
+class AboutView(View):
+    def get(self, request):
+        return render(request, 'base/about.html', {})
+
+
 @csrf_exempt
 def chatbot_api(request):
     if request.method == 'POST':

@@ -1,0 +1,182 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}À propos — MKO Performance{% endblock %}
+
+{% block extra_css %}
+<style>
+    .about-hero {
+        min-height: 60vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        background: var(--black);
+        overflow: hidden;
+    }
+    .about-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 50% 50%, rgba(255,85,0,0.15) 0%, transparent 60%);
+    }
+    .about-hero-content {
+        text-align: center;
+        z-index: 1;
+        padding: 40px;
+    }
+    .about-hero h1 {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 72px;
+        letter-spacing: 8px;
+        color: var(--white);
+        margin-bottom: 20px;
+    }
+    .about-hero h1 span {
+        color: var(--orange);
+    }
+    .about-hero p {
+        font-size: 20px;
+        color: var(--white-dim);
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .about-section {
+        padding: 80px 40px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .about-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 40px;
+        margin-top: 60px;
+    }
+    .about-card {
+        background: var(--black-card);
+        border: 1px solid rgba(255,85,0,0.15);
+        border-radius: 12px;
+        padding: 40px;
+        transition: all 0.3s ease;
+    }
+    .about-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--orange);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+    .about-card-icon {
+        font-size: 48px;
+        margin-bottom: 20px;
+    }
+    .about-card h3 {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 24px;
+        letter-spacing: 2px;
+        color: var(--orange);
+        margin-bottom: 15px;
+    }
+    .about-card p {
+        color: var(--white-dim);
+        line-height: 1.7;
+    }
+    .stats-section {
+        background: var(--black-mid);
+        padding: 80px 40px;
+    }
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 40px;
+        max-width: 1000px;
+        margin: 0 auto;
+        text-align: center;
+    }
+    .stat-item h3 {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 56px;
+        color: var(--orange);
+    }
+    .stat-item p {
+        color: var(--white-dim);
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    @media (max-width: 768px) {
+        .about-hero h1 { font-size: 48px; }
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="about-hero">
+    <div class="about-hero-content">
+        <h1>MKO <span>Performance</span></h1>
+        <p>Votre partenaire de confiance pour la location de véhicules premium au Maroc depuis 2020</p>
+    </div>
+</div>
+
+<section class="about-section">
+    <h2 style="font-family: 'Bebas Neue', cursive; font-size: 36px; letter-spacing: 4px; text-align: center;">Notre Histoire</h2>
+    <div class="about-grid">
+        <div class="about-card">
+            <div class="about-card-icon">🏎️</div>
+            <h3>Expertise</h3>
+            <p>Avec plus de 5 ans d'expérience dans le secteur automobile de luxe, nous mettons notre expertise à votre service pour vous offrir une expérience de location exceptionnelle.</p>
+        </div>
+        <div class="about-card">
+            <div class="about-card-icon">🎯</div>
+            <h3>Qualité Premium</h3>
+            <p>Nous sélectionnons rigoureusement chaque véhicule de notre flotte pour garantir Performance, confort et sécurité à nos clients les plus exigeants.</p>
+        </div>
+        <div class="about-card">
+            <div class="about-card-icon">🤝</div>
+            <h3>Service Personnalisé</h3>
+            <p>Notre équipe francophone vous accompagne à chaque étape, de la réservation à la restitution, pour un service sur mesure adapté à vos besoins.</p>
+        </div>
+    </div>
+</section>
+
+<section class="stats-section">
+    <div class="stats-grid">
+        <div class="stat-item">
+            <h3>5+</h3>
+            <p>Années d'expérience</p>
+        </div>
+        <div class="stat-item">
+            <h3>50+</h3>
+            <p>Véhicules disponibles</p>
+        </div>
+        <div class="stat-item">
+            <h3>1000+</h3>
+            <p>Clients satisfaits</p>
+        </div>
+        <div class="stat-item">
+            <h3>24/7</h3>
+            <p>Support disponible</p>
+        </div>
+    </div>
+</section>
+
+<section class="about-section">
+    <h2 style="font-family: 'Bebas Neue', cursive; font-size: 36px; letter-spacing: 4px; text-align: center; margin-bottom: 40px;">Nos Services</h2>
+    <div class="about-grid">
+        <div class="about-card">
+            <div class="about-card-icon">📅</div>
+            <h3>Location Long Terme</h3>
+            <p>Des formules flexibles pour les professionnels et particuliers souhaitant bénéficier d'un véhicule premium sur plusieurs mois avec un budget maîtrisé.</p>
+        </div>
+        <div class="about-card">
+            <div class="about-card-icon">🎉</div>
+            <h3>Location Événementielle</h3>
+            <p>Mariages, événements corporate, inaugurations — faites forte impression en arrivant dans un véhicule de prestige.</p>
+        </div>
+        <div class="about-card">
+            <div class="about-card-icon">🚗</div>
+            <h3>Location Quotidienne</h3>
+            <p>Besoin d'un véhicule pour vos déplacements au quotidien? Découvrez notre catalogue de véhicules adaptés à tous vos besoins.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

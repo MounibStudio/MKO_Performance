@@ -14,8 +14,13 @@ class ProductListView(View):
     def get(self, request):
         today = date.today().isoformat()
         
-        voitures = Voiture.objects.all().select_related('category')
         categories = Category.objects.all()
+        
+        cat_slug = request.GET.get('categorie')
+        if cat_slug:
+            voitures = Voiture.objects.filter(category__slug=cat_slug).select_related('category')
+        else:
+            voitures = Voiture.objects.all().select_related('category')
 
         prix_list = voitures.values_list('prix', flat=True)
         max_price = int(max(prix_list)) if prix_list else 5000
@@ -25,6 +30,7 @@ class ProductListView(View):
             'categories': categories,
             'max_price': max_price,
             'today': today,
+            'categorie_active': cat_slug,
         })
 
 

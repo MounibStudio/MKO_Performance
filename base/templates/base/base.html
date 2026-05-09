@@ -678,8 +678,8 @@
                     <li><a href="{% url 'home' %}">Accueil</a></li>
                     <li><a href="{% url 'product_list' %}">Catalogue</a></li>
                     <li><a href="{% url 'blog_list' %}">Blog</a></li>
-                    <li><a href="#">Nos Services</a></li>
-                    <li><a href="#">À propos</a></li>
+                    <li><a href="{% url 'product_list' %}">Nos Services</a></li>
+                    <li><a href="{% url 'about' %}">À propos</a></li>
                 </ul>
             </div>
 
@@ -687,11 +687,11 @@
             <div class="footer-col">
                 <h4>Catégories</h4>
                 <ul>
-                    <li><a href="#">SUV & 4x4</a></li>
-                    <li><a href="#">Sport & Coupé</a></li>
-                    <li><a href="#">Berlines</a></li>
-                    <li><a href="#">Convertibles</a></li>
-                    <li><a href="#">Pick-up</a></li>
+                    <li><a href="{% url 'product_list' %}?categorie=suv">SUV & 4x4</a></li>
+                    <li><a href="{% url 'product_list' %}?categorie=sport">Sport & Coupé</a></li>
+                    <li><a href="{% url 'product_list' %}?categorie=sedans">Berlines</a></li>
+                    <li><a href="{% url 'product_list' %}?categorie=convertible-automatique">Convertibles</a></li>
+                    <li><a href="{% url 'product_list' %}?categorie=pickup">Pick-up</a></li>
                 </ul>
             </div>
 

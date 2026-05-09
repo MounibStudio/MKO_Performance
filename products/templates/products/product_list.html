@@ -953,12 +953,12 @@
         <div class="filter-block">
             <div class="filter-title">◈ Catégorie</div>
             <div class="cat-filter">
-                <div class="cat-pill active" data-cat="all" onclick="filterCategory(this, 'all')">
+                <div class="cat-pill active" data-cat="all" data-cat-slug="" onclick="filterCategory(this, 'all')">
                     Toutes les catégories
                     <span class="cat-num">{{ voitures|length }}</span>
                 </div>
                 {% for cat in categories %}
-                <div class="cat-pill" data-cat="{{ cat.id }}" onclick="filterCategory(this, '{{ cat.id }}')">
+                <div class="cat-pill" data-cat="{{ cat.id }}" data-cat-slug="{{ cat.slug }}" onclick="filterCategory(this, '{{ cat.id }}')">
                     {{ cat.nom }}
                     <span class="cat-num">{{ cat.voitures.count }}</span>
                 </div>
@@ -1149,6 +1149,20 @@ data-name="{{ voiture.nom|lower }}"
 
     let currentSort = 'default';
     let searchQuery = '';
+
+    // Initialiser la catégorie depuis l'URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const catSlug = urlParams.get('categorie');
+    if (catSlug) {
+        const pills = document.querySelectorAll('.cat-pill');
+        pills.forEach(pill => {
+            const catSlugAttr = pill.getAttribute('data-cat-slug');
+            if (catSlugAttr === catSlug) {
+                pill.classList.add('active');
+                activeCategory = pill.getAttribute('data-cat');
+            }
+        });
+    }
 
     // ===== FILTER BY CATEGORY =====
     function filterCategory(el, catId) {
