@@ -28,6 +28,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+     'whitenoise.middleware.WhiteNoiseMiddleware', 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -143,3 +144,5 @@ GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '')
 
 CSRF_TRUSTED_ORIGINS = ['https://web-production-a0e80.up.railway.app']
 ALLOWED_HOSTS = ['web-production-a0e80.up.railway.app', 'localhost', '127.0.0.1']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
