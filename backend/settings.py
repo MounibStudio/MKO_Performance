@@ -141,3 +141,5 @@ DEFAULT_FROM_EMAIL = "MKO Performance <mkoperformance@gmail.com>"
 # Groq API for Chatbot
 GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '')
 
+CSRF_TRUSTED_ORIGINS = ['https://web-production-a0e80.up.railway.app']
+ALLOWED_HOSTS = ['web-production-a0e80.up.railway.app', 'localhost', '127.0.0.1']
