@@ -64,7 +64,7 @@ import platform
 is_windows = platform.system() == "Windows"
 
 if is_windows:
-    # Config pour tes collègues (Windows / Wamp)
+    # Config pour Windows / Wamp
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -78,14 +78,29 @@ if is_windows:
             },
         }
     }
-else:
-    # Ta config pour Linux Mint
+elif os.getenv('MYSQLHOST'):
+    # Config Railway (production)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'mko_performance_db', # <--- Doit correspondre à la DB créée
-            'USER': 'mko',        # L'utilisateur qu'on a créé (ou root si tu préfères)
-            'PASSWORD': 'mko123', # Ton mot de passe défini
+            'NAME': os.getenv('MYSQLDATABASE'),
+            'USER': os.getenv('MYSQLUSER'),
+            'PASSWORD': os.getenv('MYSQLPASSWORD'),
+            'HOST': os.getenv('MYSQLHOST'),
+            'PORT': os.getenv('MYSQLPORT', '3306'),
+            'OPTIONS': {
+                'charset': 'utf8mb4',
+            },
+        }
+    }
+else:
+    # Config Linux Mint
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'mko_performance_db',
+            'USER': 'mko',
+            'PASSWORD': 'mko123',
             'HOST': 'localhost',
             'PORT': '3306',
             'OPTIONS': {
