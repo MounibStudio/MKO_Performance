@@ -325,7 +325,7 @@ def passer_commande(request):
             thread = threading.Thread(target=send_confirmation_email, args=(commande, request.user))
             thread.daemon = True
             thread.start()
-            email_result = "En cours d'envoi"
+            email_result = send_confirmation_email(commande, request.user)
             request.session['email_result'] = email_result
             
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
