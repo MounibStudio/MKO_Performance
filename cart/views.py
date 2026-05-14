@@ -74,7 +74,7 @@ def ajouter_au_panier(request, voiture_id):
     ).first()
 
     if article_existant:
-        messages.warning(request, f"{voiture.nom} est déjà dans votre panier.")
+        messages.warning(request, f"{voiture.nom} est deja dans votre panier.")
         return redirect('cart:panier_detail')
 
     article, created = ArticlePanier.objects.get_or_create(
@@ -92,9 +92,9 @@ def ajouter_au_panier(request, voiture_id):
         article.date_debut = date_debut
         article.date_fin = date_fin
         article.save()
-        messages.success(request, f"{voiture.nom} ajouté au panier.")
+        messages.success(request, f"{voiture.nom} ajoute au panier.")
     else:
-        messages.success(request, f"{voiture.nom} ajouté au panier ({date_debut} au {date_fin}).")
+        messages.success(request, f"{voiture.nom} ajoute au panier ({date_debut} au {date_fin}).")
 
     return redirect('cart:panier_detail')
 
@@ -117,11 +117,11 @@ def modifier_dates(request):
         return redirect('cart:panier_detail')
 
     if date_debut > date_fin:
-        messages.error(request, "La date de fin doit être après la date de début.")
+        messages.error(request, "La date de fin doit etre apres la date de debut.")
         return redirect('cart:panier_detail')
 
     if date_debut < date.today():
-        messages.error(request, "La date de début ne peut pas être dans le passé.")
+        messages.error(request, "La date de debut ne peut pas etre dans le passe.")
         return redirect('cart:panier_detail')
 
     panier = get_or_create_panier(request.user)
@@ -129,7 +129,7 @@ def modifier_dates(request):
     panier.date_fin = date_fin
     panier.save()
 
-    messages.success(request, f"Dates mises à jour: {date_debut} au {date_fin}")
+    messages.success(request, f"Dates mises a jour: {date_debut} au {date_fin}")
     return redirect('cart:panier_detail')
 
 
@@ -141,11 +141,11 @@ def modifier_quantite(request, article_id):
 
     if nouvelle_quantite < 1:
         article.delete()
-        messages.success(request, f"{article.voiture.nom} retiré du panier.")
+        messages.success(request, f"{article.voiture.nom} retire du panier.")
     else:
         article.quantite = nouvelle_quantite
         article.save()
-        messages.success(request, f"Quantité de {article.voiture.nom} mise à jour.")
+        messages.success(request, f"Quantite de {article.voiture.nom} mise a jour.")
 
     return redirect('cart:panier_detail')
 
@@ -163,7 +163,7 @@ def supprimer_article(request, article_id):
         panier.date_fin = None
         panier.save()
 
-    messages.success(request, f"{nom_voiture} retiré du panier.")
+    messages.success(request, f"{nom_voiture} retire du panier.")
     return redirect('cart:panier_detail')
 
 
@@ -175,7 +175,7 @@ def vider_panier(request):
     panier.date_debut = None
     panier.date_fin = None
     panier.save()
-    messages.success(request, "Panier vidé.")
+    messages.success(request, "Panier vide.")
     return redirect('cart:panier_detail')
 
 
@@ -198,8 +198,6 @@ def get_panier_count(request):
     except Panier.DoesNotExist:
         return JsonResponse({'count': 0, 'total': 0})
 
-
-# ========== CHECKOUT ==========
 
 @login_required
 def checkout(request):
@@ -237,14 +235,12 @@ def passer_commande(request):
     remarque = request.POST.get('remarque', '')
 
     if paiement not in ['cash', 'carte']:
-        messages.error(request, "Veuillez choisir un mode de paiement.")
-        return redirect('cart:checkout')
+        return JsonResponse({'error': 'Veuillez choisir un mode de paiement.'})
 
     panier = Panier.objects.filter(utilisateur=request.user).first()
 
     if not panier or not panier.articles.exists():
-        messages.error(request, "Votre panier est vide.")
-        return redirect('cart:panier_detail')
+        return JsonResponse({'error': 'Votre panier est vide.'})
 
     articles = list(panier.articles.select_related('voiture'))
 
@@ -325,8 +321,11 @@ def passer_commande(request):
             thread.start()
             request.session['email_result'] = "En cours d'envoi"
 
-            messages.success(request, f"Réservation #{commande.id} confirmée!")
-            return redirect('cart:confirmation', commande_id=commande.id)
+            return JsonResponse({
+                'success': True,
+                'commande_id': commande.id,
+                'redirect': reverse('cart:confirmation', args=[commande.id])
+            })
 
         except Exception as e:
             return JsonResponse({'error': str(e)})
@@ -419,22 +418,20 @@ def send_confirmation_email(commande, user):
         vehicles = [a.voiture.nom for a in commande.articles.all()]
         vehicles_text = ", ".join(vehicles)
 
-        sujet = f"Réservation #{commande.id} confirmée - MKO Performance"
+        sujet = f"Reservation #{commande.id} confirmee - MKO Performance"
         paiement_text = "Cash" if commande.paiement == 'cash' else "Carte"
 
-        message = f"""Bonjour {user.first_name or user.username},
-
-Votre réservation #{commande.id} a été confirmée.
-
-Détails:
-- Véhicule(s): {vehicles_text}
-- Total: {commande.total} MAD
-- Mode de paiement: {paiement_text}
-- Date: {commande.cree_le.strftime('%d/%m/%Y à %H:%M')}
-
-Merci de votre confiance!
-
-L'équipe MKO Performance"""
+        message = (
+            f"Bonjour {user.first_name or user.username},\n\n"
+            f"Votre reservation #{commande.id} a ete confirmee.\n\n"
+            f"Details:\n"
+            f"- Vehicule(s): {vehicles_text}\n"
+            f"- Total: {commande.total} MAD\n"
+            f"- Mode de paiement: {paiement_text}\n"
+            f"- Date: {commande.cree_le.strftime('%d/%m/%Y')}\n\n"
+            f"Merci de votre confiance!\n\n"
+            f"L'equipe MKO Performance"
+        )
 
         send_mail(
             sujet,
@@ -443,8 +440,8 @@ L'équipe MKO Performance"""
             [user.email],
             fail_silently=False,
         )
-        logger.info(f"Email envoyé à {user.email}")
-        return "Envoyé"
+        logger.info(f"Email envoye a {user.email}")
+        return "Envoye"
     except Exception as e:
         logger.error(f"Erreur email: {e}")
         return f"Erreur: {e}"
