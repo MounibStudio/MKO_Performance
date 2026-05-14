@@ -320,12 +320,18 @@ def passer_commande(request):
             panier.articles.all().delete()
             panier.save()
             
-            # Envoyer email de confirmation
+            # ✅ APRÈS - appel unique en thread
             import threading
             thread = threading.Thread(target=send_confirmation_email, args=(commande, request.user))
             thread.daemon = True
             thread.start()
-            email_result = send_confirmation_email(commande, request.user)
+            email_result = "En cours d'envoi"
+            request.session['email_result'] = email_result# ✅ APRÈS - appel unique en thread
+            import threading
+            thread = threading.Thread(target=send_confirmation_email, args=(commande, request.user))
+            thread.daemon = True
+            thread.start()
+            email_result = "En cours d'envoi"
             request.session['email_result'] = email_result
             
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
