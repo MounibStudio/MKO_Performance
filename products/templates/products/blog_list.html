@@ -3,10 +3,6 @@
 
 {% block title %}Blog & Actualités — MKO Performance{% endblock %}
 
-{% block content %}
-
-{% block title %}Blog & Actualités — MKO Performance{% endblock %}
-
 {% block extra_css %}
 <style>
     .blog-page {
@@ -28,7 +24,9 @@
         margin-bottom: 16px;
     }
 
-    .blog-title span { color: var(--orange); }
+    .blog-title span {
+        color: var(--orange);
+    }
 
     .blog-subtitle {
         color: rgba(255,255,255,0.4);
@@ -114,12 +112,19 @@
     }
 
     @media (max-width: 900px) {
-        .blog-grid { grid-template-columns: 1fr 1fr; }
+        .blog-grid {
+            grid-template-columns: 1fr 1fr;
+        }
     }
 
     @media (max-width: 600px) {
-        .blog-page { padding: 80px 20px 60px; }
-        .blog-grid { grid-template-columns: 1fr; }
+        .blog-page {
+            padding: 80px 20px 60px;
+        }
+
+        .blog-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 {% endblock %}
@@ -128,43 +133,46 @@
 <div class="blog-page">
     <div class="blog-header">
         <h1 class="blog-title">Blog & <span>Actualités</span></h1>
-        <p class="blog-subtitle">Découvrez les dernières nouvelles, conseils et tendances du monde de l'automobile</p>
+        <p class="blog-subtitle">
+            Découvrez les dernières nouvelles, conseils et tendances du monde de l'automobile
+        </p>
     </div>
 
-{% if articles %}
-    <div class="blog-grid">
-        {% for article in articles %}
-        <a href="{% url 'blog_detail' article.slug %}" class="blog-card">
-            <div class="blog-card-img">
+    {% if articles %}
+        <div class="blog-grid">
+            {% for article in articles %}
+                <a href="{% url 'blog_detail' article.slug %}" class="blog-card">
+                    <div class="blog-card-img">
 
-                {% if forloop.counter == 1 %}
-                    <img src="{% static 'base/blog/6f90b6c9a9ac040a51b527742bd66a3e.png' %}" alt="{{ article.titre }}">
-                {% elif forloop.counter == 2 %}
-                    <img src="{% static 'base/blog/7089f81d77b21b18d6a04aad28e22313.png' %}" alt="{{ article.titre }}">
-                {% elif forloop.counter == 3 %}
-                    <img src="{% static 'base/blog/ae35ca426c537b62ce30e374cb602cf0.png' %}" alt="{{ article.titre }}">
-                {% else %}
-                    {% if article.image %}
-                        <img src="{{ article.image.url }}" alt="{{ article.titre }}">
-                    {% else %}
-                        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px;opacity:0.2;">📰</div>
-                    {% endif %}
-                {% endif %}
+                        {% if forloop.counter == 1 %}
+                            <img src="{% static 'base/blog/6f90b6c9a9ac040a51b527742bd66a3e.png' %}" alt="{{ article.titre }}">
+                        {% elif forloop.counter == 2 %}
+                            <img src="{% static 'base/blog/7089f81d77b21b18d6a04aad28e22313.png' %}" alt="{{ article.titre }}">
+                        {% elif forloop.counter == 3 %}
+                            <img src="{% static 'base/blog/ae35ca426c537b62ce30e374cb602cf0.png' %}" alt="{{ article.titre }}">
+                        {% else %}
+                            {% if article.image %}
+                                <img src="{{ article.image.url }}" alt="{{ article.titre }}">
+                            {% else %}
+                                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px;opacity:0.2;">📰</div>
+                            {% endif %}
+                        {% endif %}
 
-            </div>
-            <div class="blog-card-body">
-                <div class="blog-card-date">{{ article.cree_le|date:"d M Y" }}</div>
-                <h3 class="blog-card-title">{{ article.titre }}</h3>
-                <p class="blog-card-excerpt">{{ article.contenu|truncatewords:30 }}</p>
-            </div>
-        </a>
-        {% endfor %}
-    </div>
-{% else %}
-    <div class="blog-empty">
-        <p style="font-size: 24px;">Aucun article pour le moment</p>
-        <p style="margin-top: 12px;">Revenez bientôt pour les dernières actualités!</p>
-    </div>
-{% endif %}
+                    </div>
+
+                    <div class="blog-card-body">
+                        <div class="blog-card-date">{{ article.cree_le|date:"d M Y" }}</div>
+                        <h3 class="blog-card-title">{{ article.titre }}</h3>
+                        <p class="blog-card-excerpt">{{ article.contenu|truncatewords:30 }}</p>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="blog-empty">
+            <p style="font-size: 24px;">Aucun article pour le moment</p>
+            <p style="margin-top: 12px;">Revenez bientôt pour les dernières actualités!</p>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}
