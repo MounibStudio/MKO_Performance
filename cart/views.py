@@ -268,14 +268,16 @@ def passer_commande(request):
                 paiement='carte'
             )
             
-            for article in articles:
-                jours = article.jours if article.date_debut and article.date_fin else 1
-                cursor = connection.cursor()
-                cursor.execute("SET SESSION sql_mode = ''")
-                cursor.execute(
-                    "INSERT INTO orders_articlecommande (commande_id, voiture_id, quantite, prix, date_debut, date_fin) VALUES (%s, %s, %s, %s, %s, %s)",
-                    [commande.id, article.voiture.id, article.quantite, float(article.voiture.prix * jours), article.date_debut, article.date_fin]
-                )
+        for article in articles:
+            jours = article.jours if article.date_debut and article.date_fin else 1
+            ArticleCommande.objects.create(
+            commande=commande,
+            voiture=article.voiture,
+            quantite=article.quantite,
+            prix=article.voiture.prix * jours,
+            date_debut=article.date_debut,
+            date_fin=article.date_fin
+    )
             
             result = creer_intent_paiement(total, commande.id)
             
@@ -308,13 +310,16 @@ def passer_commande(request):
                 paiement=paiement
             )
             
+            # ✅ APRÈS
             for article in articles:
                 jours = article.jours if article.date_debut and article.date_fin else 1
-                cursor = connection.cursor()
-                cursor.execute("SET SESSION sql_mode = ''")
-                cursor.execute(
-                    "INSERT INTO orders_articlecommande (commande_id, voiture_id, quantite, prix, date_debut, date_fin) VALUES (%s, %s, %s, %s, %s, %s)",
-                    [commande.id, article.voiture.id, article.quantite, float(article.voiture.prix * jours), article.date_debut, article.date_fin]
+                ArticleCommande.objects.create(
+                    commande=commande,
+                    voiture=article.voiture,
+                    quantite=article.quantite,
+                    prix=article.voiture.prix * jours,
+                    date_debut=article.date_debut,
+                    date_fin=article.date_fin
                 )
             
             panier.articles.all().delete()
