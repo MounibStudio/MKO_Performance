@@ -436,11 +436,10 @@
                     <textarea name="remarque" class="remarque" placeholder="Une remarque pour l'agence..."></textarea>
                 </div>
 
-            <form method="POST" action="{% url 'send_welcome_email' %}">
-                {% csrf_token %}
-                    <button type="submit" class="btn-submit">
-                        Confirmer la Réservation →
-                    </button>
+            <!-- ✅ REMPLACE PAR JUSTE LE BOUTON -->
+           <button type="submit" class="btn-submit">
+             Confirmer la Réservation →
+            </button>
             </form>
                
             </div>
